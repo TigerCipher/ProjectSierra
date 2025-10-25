@@ -15,35 +15,29 @@
 // **************************************************************************** //
 
 
-#include "App.h"
+#pragma once
 
-#include <glad/glad.h>
+#include "Types.h"
+#include <format>
 
-#include <iostream>
-
-namespace stick
+namespace stick::logger
 {
 
-void App::CreateWindow(const std::string& title, const int width, const int height)
+struct LogLevel
 {
-    _window = CreateScope<AppWindow>(title, width, height);
-
-    _window->Init();
-    _init = true;
-}
-
-void App::Run()
-{
-    if (!_init)
-        return;
-    LOG_INFO("Running App");
-
-    while (!_window->ShouldClose())
+    enum Level : u8
     {
-        glClear(GL_COLOR_BUFFER_BIT);
-        _window->SwapBuffers();
-        _window->PollEvents();
-    }
+        Debug,
+        Info,
+        Warn,
+        Error,
+        Fatal
+    };
+};
+
+namespace detail
+{
+void Output(LogLevel::Level level, std::string_view message, std::string_view fileName, u32 lineNumber);
 }
 
-} // namespace stick
+} // namespace stick::logger

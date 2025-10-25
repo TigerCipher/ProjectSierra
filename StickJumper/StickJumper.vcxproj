@@ -164,6 +164,7 @@
   <ItemGroup>
     <ClCompile Include="src\Core\App.cpp" />
     <ClCompile Include="src\Core\AppWindow.cpp" />
+    <ClCompile Include="src\Core\Logger.cpp" />
     <ClCompile Include="src\glad.c">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -323,6 +324,7 @@
     <ClInclude Include="src\Common.h" />
     <ClInclude Include="src\Core\App.h" />
     <ClInclude Include="src\Core\AppWindow.h" />
+    <ClInclude Include="src\Core\Logger.h" />
     <ClInclude Include="src\Error\StickException.h" />
     <ClInclude Include="src\Types.h" />
   </ItemGroup>

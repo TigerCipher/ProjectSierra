@@ -1,4 +1,20 @@
-﻿#pragma once
+﻿// **************************************************************************** //
+//    Copyright 2025 Matt Rogers
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// **************************************************************************** //
+
+#pragma once
 #include "Common.h"
 #include <string>
 
@@ -8,7 +24,6 @@ namespace stick
 class AppWindow
 {
 public:
-    AppWindow() = default;
     AppWindow(std::string title, const int width, const int height) : _title(std::move(title)), _width(width), _height(height) {}
     virtual ~AppWindow();
 
@@ -16,15 +31,15 @@ public:
     void Destroy() noexcept;
 
     [[nodiscard]] bool ShouldClose() const noexcept;
-    void SwapBuffers() const noexcept;
-    void PollEvents() noexcept;
+    void               SwapBuffers() const noexcept;
+    void               PollEvents() noexcept;
 
 private:
     std::string _title;
-    int         _width     = 600;
-    int         _height    = 480;
-    GLFWwindow* _windowPtr = nullptr;
-    bool        _destroyed = false;
+    int         _width       = 600;
+    int         _height      = 480;
+    GLFWwindow* _windowPtr   = nullptr;
+    bool        _initialized = false;
 };
 
 } // namespace stick
