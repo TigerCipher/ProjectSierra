@@ -24,20 +24,28 @@ namespace stick
 class AppWindow
 {
 public:
-    AppWindow(std::string title, const int width, const int height) : _title(std::move(title)), _width(width), _height(height) {}
+    AppWindow(std::string title, const i32 width, const i32 height) : _title(std::move(title)), _width(width), _height(height) {}
     virtual ~AppWindow();
 
     void Init();
     void Destroy() noexcept;
 
     [[nodiscard]] bool ShouldClose() const noexcept;
-    void               SwapBuffers() const noexcept;
-    void               PollEvents() noexcept;
+
+    void SwapBuffers() const noexcept;
+    void PollEvents() noexcept;
+
+    void SetTitle(const std::string& title) const noexcept;
+    void SetSize(i32 width, i32 height) noexcept;
+
+    [[nodiscard]] const std::string& Title() const noexcept { return _title; }
+    [[nodiscard]] i32 Width() const noexcept { return _width; }
+    [[nodiscard]] i32 Height() const noexcept { return _height; }
 
 private:
     std::string _title;
-    int         _width       = 600;
-    int         _height      = 480;
+    i32         _width       = 600;
+    i32         _height      = 480;
     GLFWwindow* _windowPtr   = nullptr;
     bool        _initialized = false;
 };

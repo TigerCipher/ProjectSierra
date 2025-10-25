@@ -163,6 +163,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\App.cpp" />
+    <ClCompile Include="src\Core\AppSettings.cpp" />
     <ClCompile Include="src\Core\AppWindow.cpp" />
     <ClCompile Include="src\Core\Logger.cpp" />
     <ClCompile Include="src\glad.c">
@@ -323,6 +324,7 @@
   <ItemGroup>
     <ClInclude Include="src\Common.h" />
     <ClInclude Include="src\Core\App.h" />
+    <ClInclude Include="src\Core\AppSettings.h" />
     <ClInclude Include="src\Core\AppWindow.h" />
     <ClInclude Include="src\Core\Logger.h" />
     <ClInclude Include="src\Error\StickException.h" />

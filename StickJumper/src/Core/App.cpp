@@ -17,9 +17,10 @@
 
 #include "App.h"
 
+#include <algorithm>
 #include <glad/glad.h>
-
-#include <iostream>
+#include <chrono>
+#include <thread>
 
 namespace stick
 {
@@ -38,11 +39,81 @@ void App::Run()
         return;
     LOG_INFO("Running App");
 
+    using clock = std::chrono::high_resolution_clock;
+    using duration = std::chrono::duration<f32>;
+    
+    constexpr f32 FixedTimeStep = 1.0f / 60.0f; // 60 Hz logic updates
+    auto previous = clock::now();
+
+    f32 accumulator = 0.0f;
+    i32 frameCount = 0;
+    f32 fps = 0.0f;
+    auto fpsTimer = clock::now();
+
     while (!_window->ShouldClose())
     {
-        glClear(GL_COLOR_BUFFER_BIT);
-        _window->SwapBuffers();
+        constexpr f32 MaxAccumulatedTime = 0.25f;
+        auto now = clock::now();
+        f32 deltaTime = std::chrono::duration_cast<duration>(now - previous).count();
+        previous = now;
+        accumulator += std::clamp(deltaTime, 0.0f, MaxAccumulatedTime);
+
+        frameCount++;
+
+        // Update FPS once per second
+        if (std::chrono::duration_cast<std::chrono::seconds>(now - fpsTimer).count() >= 1)
+        {
+            fps = static_cast<f32>(frameCount);
+            frameCount = 0;
+            fpsTimer = now;
+            f32 frameTimeMs = deltaTime * 1000.0f;
+            
+            _window->SetTitle(std::format("Stick Jumper | FPS: {:.2f}", fps));
+            LOG_DEBUG("FPS: {:.2f} | Delta: {:.4f} | Frame Time (MS): {:.4f}", fps, deltaTime, frameTimeMs);
+        }
+
         _window->PollEvents();
+        // Handle input
+
+        // Update tick - logic, physics, etc. This happens at a fixed timestep
+        while (accumulator >= FixedTimeStep)
+        {
+            // Update logic
+            accumulator -= FixedTimeStep;
+        }
+
+        // Rendering at variable timestep
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // Present to screen
+        _window->SwapBuffers();
+
+        LimitFrameRate(now);
+    }
+}
+void App::LimitFrameRate(const std::chrono::time_point<std::chrono::steady_clock> frameStart) const
+{
+    if (_settings.LimitFrameRate) return;
+    
+    constexpr f32 TargetFrameTime = 1.0f / _settings.TargetFrameRate;
+    using clock = std::chrono::high_resolution_clock;
+    
+    const auto frameEnd = clock::now();
+    const f32 frameDuration = std::chrono::duration<f32>(frameEnd - frameStart).count();
+
+    if (frameDuration < TargetFrameTime)
+    {
+        f32 remaining = TargetFrameTime - frameDuration;
+
+        // Sleep coarsely if more than ~2ms remain
+        if (remaining > 0.002f)
+        {
+            std::this_thread::sleep_for(std::chrono::duration<f32>(remaining - 0.001f));
+        }
+
+        // Busy-wait for fine precision
+        while (std::chrono::duration<f32>(clock::now() - frameStart).count() < TargetFrameTime)
+            std::this_thread::yield();
     }
 }
 

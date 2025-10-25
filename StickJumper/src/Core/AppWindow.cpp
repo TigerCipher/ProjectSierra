@@ -89,5 +89,15 @@ void AppWindow::PollEvents() noexcept
 {
     glfwPollEvents();
 }
+void AppWindow::SetTitle(const std::string& title) const noexcept
+{
+    glfwSetWindowTitle(_windowPtr, title.c_str());
+}
+
+void AppWindow::SetSize(const i32 width, const i32 height) noexcept
+{
+    _width = width;
+    _height = height;
+}
 
 } // namespace stick
