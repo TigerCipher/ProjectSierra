@@ -11,13 +11,27 @@
 // limitations under the License.
 // **************************************************************************** //
 
+
 #pragma once
 
-#include "Types.h"
+#include "Core/AppSettings.h"
+#include <nlohmann/json.hpp>
 
-struct AppSettings
+using json = nlohmann::json;
+
+inline void to_json(json& j, const AppSettings& settings)
 {
-    bool LimitFrameRate = false;
-    f32 TargetFrameRate = 120.0f;
-    bool UseVsync = true;
-};
+    j = json{
+            {"LimitFrameRate", settings.LimitFrameRate},
+            {"TargetFrameRate", settings.TargetFrameRate},
+            {"UseVsync", settings.UseVsync}
+    };
+}
+
+inline void from_json(const json& j, AppSettings& settings)
+{
+    if (j.contains("LimitFrameRate")) settings.LimitFrameRate = j.at("LimitFrameRate").get<bool>();
+    if (j.contains("TargetFrameRate")) settings.TargetFrameRate = j.at("TargetFrameRate").get<float>();
+    if (j.contains("UseVsync")) settings.UseVsync = j.at("UseVsync").get<bool>();
+}
+

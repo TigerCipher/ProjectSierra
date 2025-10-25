@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
     try
     {
         App app;
-
+        app.Init();
         app.CreateWindow("Stick Jumper", 1920, 1080);
 
         app.Run();

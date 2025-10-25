@@ -19,7 +19,11 @@
 
 #include "Types.h"
 #include "Error/StickException.h"
+#include "Error/IOException.h"
 #include "Core/Logger.h"
+#include "Core/AppSettings.h"
+
+inline AppSettings _AppSettings;
 
 #ifdef _DEBUG
     #define LOG_DEBUG(msg, ...)                                                                                                  \

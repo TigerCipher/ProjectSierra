@@ -22,8 +22,25 @@
 #include <chrono>
 #include <thread>
 
+#include "Util/AppSettingsSerializer.h"
+#include "Util/SettingsManager.h"
+
 namespace stick
 {
+
+namespace
+{
+
+SettingsManager _Settings("./app/settings.json");
+
+} // anonymous namespace
+
+void App::Init()
+{
+    _Settings.RegisterDefault("app", AppSettings());
+    _Settings.Load();
+    _AppSettings = _Settings.Get<AppSettings>("app");
+}
 
 void App::CreateWindow(const std::string& title, const int width, const int height)
 {
@@ -93,17 +110,17 @@ void App::Run()
 }
 void App::LimitFrameRate(const std::chrono::time_point<std::chrono::steady_clock> frameStart) const
 {
-    if (_settings.LimitFrameRate) return;
+    if (!_AppSettings.LimitFrameRate) return;
     
-    constexpr f32 TargetFrameTime = 1.0f / _settings.TargetFrameRate;
+    const f32 targetFrameTime = 1.0f / _AppSettings.TargetFrameRate;
     using clock = std::chrono::high_resolution_clock;
     
     const auto frameEnd = clock::now();
     const f32 frameDuration = std::chrono::duration<f32>(frameEnd - frameStart).count();
 
-    if (frameDuration < TargetFrameTime)
+    if (frameDuration < targetFrameTime)
     {
-        f32 remaining = TargetFrameTime - frameDuration;
+        f32 remaining = targetFrameTime - frameDuration;
 
         // Sleep coarsely if more than ~2ms remain
         if (remaining > 0.002f)
@@ -112,7 +129,7 @@ void App::LimitFrameRate(const std::chrono::time_point<std::chrono::steady_clock
         }
 
         // Busy-wait for fine precision
-        while (std::chrono::duration<f32>(clock::now() - frameStart).count() < TargetFrameTime)
+        while (std::chrono::duration<f32>(clock::now() - frameStart).count() < targetFrameTime)
             std::this_thread::yield();
     }
 }
