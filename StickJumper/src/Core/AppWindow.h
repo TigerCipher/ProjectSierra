@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../Common.h"
+#include "Common.h"
 #include <string>
 
 struct GLFWwindow;
@@ -12,12 +12,12 @@ public:
     AppWindow(std::string title, const int width, const int height) : _title(std::move(title)), _width(width), _height(height) {}
     virtual ~AppWindow();
 
-    error_t Init();
-    void Destroy();
+    void Init();
+    void Destroy() noexcept;
 
-    bool ShouldClose() const;
-    void SwapBuffers() const;
-    void PollEvents();
+    [[nodiscard]] bool ShouldClose() const noexcept;
+    void SwapBuffers() const noexcept;
+    void PollEvents() noexcept;
 
 private:
     std::string _title;

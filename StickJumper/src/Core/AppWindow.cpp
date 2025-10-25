@@ -11,13 +11,12 @@ AppWindow::~AppWindow()
     Destroy();
 }
 
-error_t AppWindow::Init()
+void AppWindow::Init()
 {
     if (!glfwInit())
     {
-        // TODO: Log error
         _destroyed = true;
-        return Error::From(Error::WindowInit, Error::GlfwInit);
+        throw StickException("Failed to initialize GLFW");
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -28,10 +27,9 @@ error_t AppWindow::Init()
 
     if (!_windowPtr)
     {
-        // TODO: Log error
         glfwTerminate();
         _destroyed = true;
-        return Error::WindowInit;
+        throw StickException("Failed to create GLFW window");
     }
 
     glfwMakeContextCurrent(_windowPtr);
@@ -43,13 +41,11 @@ error_t AppWindow::Init()
         glfwTerminate();
         _windowPtr = nullptr;
         _destroyed = true;
-        return Error::From(Error::WindowInit, Error::GladInit);
+        throw StickException("Failed to initialize GLAD OpenGL Loader");
     }
-
-    return Error::None;
 }
 
-void AppWindow::Destroy()
+void AppWindow::Destroy() noexcept
 {
     if (!_windowPtr && _destroyed)
         return;
@@ -60,17 +56,17 @@ void AppWindow::Destroy()
     _destroyed = false;
 }
 
-bool AppWindow::ShouldClose() const
+bool AppWindow::ShouldClose() const noexcept
 {
     return glfwWindowShouldClose(_windowPtr);
 }
 
-void AppWindow::SwapBuffers() const
+void AppWindow::SwapBuffers() const noexcept
 {
     glfwSwapBuffers(_windowPtr);
 }
 
-void AppWindow::PollEvents()
+void AppWindow::PollEvents() noexcept
 {
     glfwPollEvents();
 }

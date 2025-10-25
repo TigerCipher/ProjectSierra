@@ -80,7 +80,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\obj\$(Configuration)\</IntDir>
-    <SourcePath>$(VC_SourcePath);$(SolutionDir)\$(ProjectDir)\src\</SourcePath>
+    <SourcePath>$(VC_SourcePath);$(ProjectDir)\src\</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -113,7 +113,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)\lib\Include\;$(SolutionDir)\$(ProjectDir)\src\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\lib\Include\;$(ProjectDir)\src\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -323,7 +323,7 @@
     <ClInclude Include="src\Common.h" />
     <ClInclude Include="src\Core\App.h" />
     <ClInclude Include="src\Core\AppWindow.h" />
-    <ClInclude Include="src\Error.h" />
+    <ClInclude Include="src\Error\StickException.h" />
     <ClInclude Include="src\Types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
