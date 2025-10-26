@@ -21,6 +21,7 @@
 #include "AppWindow.h"
 #include "Graphics/Shader.h"
 #include "Graphics/VertexArray.h"
+#include "Graphics/Renderer.h"
 
 #include <chrono>
 
@@ -43,6 +44,7 @@ private:
     scope<VertexArray> _vao = nullptr;
     scope<Shader> _shader = nullptr;
     ref<IndexBuffer> _indexBuffer = nullptr;
+    scope<Renderer> _renderer = nullptr;
 
     void LimitFrameRate(std::chrono::time_point<std::chrono::steady_clock> frameStart) const;
 };

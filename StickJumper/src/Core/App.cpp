@@ -52,16 +52,26 @@ void App::CreateWindow(const std::string& title, const int width, const int heig
     _vao    = CreateScope<VertexArray>();
     _shader = CreateScope<Shader>("./assets/shaders/Basic.glsl");
 
-    f32 vertices[] = { // positions    // tex
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.5f, -0.5f, 1.0f, 0.0f, 0.5f, 0.5f, 1.0f, 1.0f, -0.5f, 0.5f, 0.0f, 1.0f
-};
+    // @formatter:off
+    f32 vertices[] = {
+        //   x      y        r     g     b     a
+        -0.5f, -0.5f,    1.0f, 0.0f, 0.0f, 1.0f,
+         0.5f, -0.5f,    0.0f, 1.0f, 0.0f, 1.0f,
+         0.5f,  0.5f,    0.0f, 0.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f,    1.0f, 1.0f, 0.0f, 1.0f
+    };
 
-    u32 indices[] = { 0, 1, 2, 2, 3, 0 };
+    u32 indices[] =  {
+        0, 1, 2,
+        2, 3, 0
+    };
+    
+    // @formatter:on
 
     auto vb = CreateRef<VertexBuffer>(vertices, sizeof(vertices));
     vb->SetLayout({
         { ShaderDataType::Float2, "a_Position" },
-        { ShaderDataType::Float2, "a_TexCoord" }
+        { ShaderDataType::Float4, "a_Color" }
     });
 
     _indexBuffer = CreateRef<IndexBuffer>(indices, sizeof(indices) / sizeof(u32));
@@ -72,7 +82,8 @@ void App::CreateWindow(const std::string& title, const int width, const int heig
     _shader->Bind();
     _shader->SetMat4("u_ViewProjection", glm::mat4(1.0f));
     _shader->SetMat4("u_Transform", glm::mat4(1.0f));
-    _shader->SetVec4("u_Color", glm::vec4(0.2f, 0.3f, 0.8f, 1.0f));
+
+    _renderer = CreateScope<Renderer>();
 }
 
 void App::Run()
@@ -112,6 +123,7 @@ void App::Run()
 
             _window->SetTitle(std::format("Stick Jumper | FPS: {:.2f}", fps));
             LOG_DEBUG("FPS: {:.2f} | Delta: {:.4f} | Frame Time (MS): {:.4f}", fps, deltaTime, frameTimeMs);
+            _renderer->LogFrameStats();
         }
 
         _window->PollEvents();
@@ -125,9 +137,9 @@ void App::Run()
         }
 
         // Rendering at variable timestep
-        glClear(GL_COLOR_BUFFER_BIT);
-        _vao->Bind();
-        glDrawElements(GL_TRIANGLES, _indexBuffer->Count(), GL_UNSIGNED_INT, nullptr);
+        _renderer->BeginFrame();
+        _renderer->Draw(_vao.get(), _shader.get());
+        _renderer->EndFrame();
 
         // Present to screen
         _window->SwapBuffers();

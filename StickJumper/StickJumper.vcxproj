@@ -245,6 +245,7 @@
     </ClCompile>
     <ClCompile Include="src\Graphics\Buffer.cpp" />
     <ClCompile Include="src\Graphics\GLDebug.cpp" />
+    <ClCompile Include="src\Graphics\Renderer.cpp" />
     <ClCompile Include="src\Graphics\Shader.cpp" />
     <ClCompile Include="src\Graphics\VertexArray.cpp" />
     <ClCompile Include="src\StickJumper.cpp">
@@ -335,6 +336,7 @@
     <ClInclude Include="src\Error\StickException.h" />
     <ClInclude Include="src\Graphics\Buffer.h" />
     <ClInclude Include="src\Graphics\GLDebug.h" />
+    <ClInclude Include="src\Graphics\Renderer.h" />
     <ClInclude Include="src\Graphics\Shader.h" />
     <ClInclude Include="src\Graphics\VertexArray.h" />
     <ClInclude Include="src\Types.h" />

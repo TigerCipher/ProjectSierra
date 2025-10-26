@@ -59,7 +59,7 @@ void BufferLayout::CalculateOffsetsAndStride()
     }
 }
 
-VertexBuffer::VertexBuffer(const void* data, u32 size)
+VertexBuffer::VertexBuffer(const f32* data, const u32 size)
 {
     glCreateBuffers(1, &_id);
     glBindBuffer(GL_ARRAY_BUFFER, _id);
@@ -83,13 +83,29 @@ void VertexBuffer::Unbind() const
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void VertexBuffer::SetData(const void* data, const u32 size) const
+void VertexBuffer::SetData(const f32* data, const u32 size) const
 {
     Bind();
     glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 }
 
-IndexBuffer::IndexBuffer(const u32* indices, u32 count) : _count(count)
+void VertexBuffer::SetLayout(const BufferLayout& layout)
+{
+    _layout = layout;
+
+    if (_layout.Stride() > 0)
+    {
+        i32 bufferSize = 0;
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
+        _count = bufferSize / _layout.Stride();
+    }else
+    {
+        LOG_WARN("VertexBuffer layout stride is 0, cannot calculate vertex count");
+        _count = 0;
+    }
+}
+
+IndexBuffer::IndexBuffer(const u32* indices, const u32 count) : _count(count)
 {
     glCreateBuffers(1, &_id);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _id);

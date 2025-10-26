@@ -69,21 +69,24 @@ private:
 class VertexBuffer
 {
 public:
-    VertexBuffer(const void* data, u32 size);
+    VertexBuffer(const f32* data, u32 size);
     virtual ~VertexBuffer();
 
     void Bind() const;
     void Unbind() const;
 
-    void SetData(const void* data, u32 size) const;
+    void SetData(const f32* data, u32 size) const;
     
-    void SetLayout(const BufferLayout& layout) { _layout = layout; }
+    void SetLayout(const BufferLayout& layout);
 
     [[nodiscard]] const BufferLayout& Layout() const { return _layout; }
+
+    [[nodiscard]] constexpr u32 Count() const { return _count; }
     
 private:
     u32 _id = 0;
     BufferLayout _layout;
+    u32 _count = 0;
 };
 
 class IndexBuffer

@@ -14,33 +14,35 @@
 #pragma once
 
 #include "Common.h"
-#include "Buffer.h"
-
-#include <vector>
+#include "Shader.h"
+#include "VertexArray.h"
 
 namespace stick
 {
-class VertexArray
+class Renderer
 {
 public:
-    VertexArray();
-    virtual ~VertexArray();
+    Renderer();
+    virtual ~Renderer() = default;
 
-    void Bind() const;
-    void Unbind() const;
+    void BeginFrame(const glm::vec3& clearColor = {0, 0, 0});
+    void EndFrame();
 
-    void AddVertexBuffer(const ref<VertexBuffer>& vertexBuffer);
-    void SetIndexBuffer(const ref<IndexBuffer>& indexBuffer);
+    void Draw(const VertexArray& vertexArray, const Shader& shader, const glm::mat4& transform = glm::mat4(1.0f));
+    void Draw(const VertexArray* const vertexArray, const Shader* const shader, const glm::mat4& transform = glm::mat4(1.0f));
 
-    [[nodiscard]] ref<IndexBuffer> GetIndexBuffer() const { return _indexBuffer; }
-
-    [[nodiscard]] const auto& VertexBuffers() const { return _vertexBuffers; }
-    
+    void LogFrameStats() const;
 private:
-    u32 _id = 0;
-    u32 _vboIndex = 0;
-    std::vector<ref<VertexBuffer>> _vertexBuffers{};
-    ref<IndexBuffer> _indexBuffer = nullptr;
+
+    struct Stats
+    {
+        u32 DrawCalls = 0;
+        u32 VertexCount = 0;
+        u32 IndexCount = 0;
+        u32 QuadCount = 0;
+        u32 TriangleCount = 0;
+    } _stats;
+    
 };
 
 }
