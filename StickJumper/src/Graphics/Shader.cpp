@@ -58,18 +58,21 @@ void GetShaderBlocks(const std::string& src, std::string& vertexSrc, std::string
 
 Shader::Shader(std::string filePath) : _filePath(std::move(filePath))
 {
+    LOG_INFO("Loading shader from {}", _filePath);
     const std::string src = ReadFile();
 
     std::string vertexSrc, fragSrc;
     GetShaderBlocks(src, vertexSrc, fragSrc);
 
     _id = CreateShaderProgram(vertexSrc, fragSrc);
+    LOG_DEBUG("Shader Program created: ID={}", _id);
 }
 
 Shader::~Shader()
 {
     if (!_id)
         return;
+    LOG_DEBUG("Destroying shader program: ID={}", _id);
     glDeleteProgram(_id);
     _id = 0;
 }

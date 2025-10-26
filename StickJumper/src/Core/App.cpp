@@ -48,6 +48,31 @@ void App::CreateWindow(const std::string& title, const int width, const int heig
 
     _window->Init();
     _init = true;
+
+    _vao    = CreateScope<VertexArray>();
+    _shader = CreateScope<Shader>("./assets/shaders/Basic.glsl");
+
+    f32 vertices[] = { // positions    // tex
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.5f, -0.5f, 1.0f, 0.0f, 0.5f, 0.5f, 1.0f, 1.0f, -0.5f, 0.5f, 0.0f, 1.0f
+};
+
+    u32 indices[] = { 0, 1, 2, 2, 3, 0 };
+
+    auto vb = CreateRef<VertexBuffer>(vertices, sizeof(vertices));
+    vb->SetLayout({
+        { ShaderDataType::Float2, "a_Position" },
+        { ShaderDataType::Float2, "a_TexCoord" }
+    });
+
+    _indexBuffer = CreateRef<IndexBuffer>(indices, sizeof(indices) / sizeof(u32));
+
+    _vao->AddVertexBuffer(vb);
+    _vao->SetIndexBuffer(_indexBuffer);
+
+    _shader->Bind();
+    _shader->SetMat4("u_ViewProjection", glm::mat4(1.0f));
+    _shader->SetMat4("u_Transform", glm::mat4(1.0f));
+    _shader->SetVec4("u_Color", glm::vec4(0.2f, 0.3f, 0.8f, 1.0f));
 }
 
 void App::Run()
@@ -56,23 +81,23 @@ void App::Run()
         return;
     LOG_INFO("Running App");
 
-    using clock = std::chrono::high_resolution_clock;
+    using clock    = std::chrono::high_resolution_clock;
     using duration = std::chrono::duration<f32>;
-    
-    constexpr f32 FixedTimeStep = 1.0f / 60.0f; // 60 Hz logic updates
-    auto previous = clock::now();
 
-    f32 accumulator = 0.0f;
-    i32 frameCount = 0;
-    f32 fps = 0.0f;
-    auto fpsTimer = clock::now();
+    constexpr f32 FixedTimeStep = 1.0f / 60.0f; // 60 Hz logic updates
+    auto          previous      = clock::now();
+
+    f32  accumulator = 0.0f;
+    i32  frameCount  = 0;
+    f32  fps         = 0.0f;
+    auto fpsTimer    = clock::now();
 
     while (!_window->ShouldClose())
     {
         constexpr f32 MaxAccumulatedTime = 0.25f;
-        auto now = clock::now();
-        f32 deltaTime = std::chrono::duration_cast<duration>(now - previous).count();
-        previous = now;
+        auto          now                = clock::now();
+        f32           deltaTime          = std::chrono::duration_cast<duration>(now - previous).count();
+        previous                         = now;
         accumulator += std::clamp(deltaTime, 0.0f, MaxAccumulatedTime);
 
         frameCount++;
@@ -80,11 +105,11 @@ void App::Run()
         // Update FPS once per second
         if (std::chrono::duration_cast<std::chrono::seconds>(now - fpsTimer).count() >= 1)
         {
-            fps = static_cast<f32>(frameCount);
-            frameCount = 0;
-            fpsTimer = now;
+            fps             = static_cast<f32>(frameCount);
+            frameCount      = 0;
+            fpsTimer        = now;
             f32 frameTimeMs = deltaTime * 1000.0f;
-            
+
             _window->SetTitle(std::format("Stick Jumper | FPS: {:.2f}", fps));
             LOG_DEBUG("FPS: {:.2f} | Delta: {:.4f} | Frame Time (MS): {:.4f}", fps, deltaTime, frameTimeMs);
         }
@@ -101,6 +126,8 @@ void App::Run()
 
         // Rendering at variable timestep
         glClear(GL_COLOR_BUFFER_BIT);
+        _vao->Bind();
+        glDrawElements(GL_TRIANGLES, _indexBuffer->Count(), GL_UNSIGNED_INT, nullptr);
 
         // Present to screen
         _window->SwapBuffers();
@@ -110,13 +137,14 @@ void App::Run()
 }
 void App::LimitFrameRate(const std::chrono::time_point<std::chrono::steady_clock> frameStart) const
 {
-    if (!_AppSettings.LimitFrameRate) return;
-    
+    if (!_AppSettings.LimitFrameRate)
+        return;
+
     const f32 targetFrameTime = 1.0f / _AppSettings.TargetFrameRate;
-    using clock = std::chrono::high_resolution_clock;
-    
-    const auto frameEnd = clock::now();
-    const f32 frameDuration = std::chrono::duration<f32>(frameEnd - frameStart).count();
+    using clock               = std::chrono::high_resolution_clock;
+
+    const auto frameEnd      = clock::now();
+    const f32  frameDuration = std::chrono::duration<f32>(frameEnd - frameStart).count();
 
     if (frameDuration < targetFrameTime)
     {

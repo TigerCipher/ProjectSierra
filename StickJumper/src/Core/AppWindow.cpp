@@ -15,6 +15,7 @@
 // **************************************************************************** //
 
 #include "AppWindow.h"
+#include "Graphics/GLDebug.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -28,36 +29,28 @@ namespace
 // cpp
 void CheckSwapControlSupportAndSet(bool useVsync)
 {
-    // enumerate extensions in a core profile (glGetString(GL_EXTENSIONS) is not valid here)
     GLint numExt = 0;
     glGetIntegerv(GL_NUM_EXTENSIONS, &numExt);
 
     std::string extList;
     for (GLint i = 0; i < numExt; ++i)
     {
-        const char* e = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
-        if (e)
+        if (const auto e = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i)))
         {
             if (!extList.empty()) extList += ' ';
             extList += e;
         }
     }
 
-    LOG_DEBUG("Extensions: {}", extList.empty() ? "None" : extList.c_str());
-
-    bool hasSwapControl = extList.find("WGL_EXT_swap_control") != std::string::npos ||
-                          extList.find("GLX_EXT_swap_control") != std::string::npos ||
-                          extList.find("EXT_swap_control") != std::string::npos;
     bool hasSwapControlTear = extList.find("WGL_EXT_swap_control_tear") != std::string::npos ||
                               extList.find("GLX_EXT_swap_control_tear") != std::string::npos ||
                               extList.find("EXT_swap_control_tear") != std::string::npos;
 
-    LOG_DEBUG("Swap Control: {}", hasSwapControl);
-    LOG_DEBUG("Swap Control Tear: {}", hasSwapControlTear);
+    LOG_DEBUG("Supports adaptive vsync: {}", hasSwapControlTear);
 
-    // pass an int explicitly; use -1 for adaptive vsync (requires tear support)
-    glfwSwapInterval(useVsync ? 1 : 0);
-    LOG_INFO("Setting VSync to {} (swap interval: {})", useVsync, useVsync ? 1 : 0);
+    // -1 for adaptive vsync (requires tear support)
+    const i32 vsyncType = useVsync ? (hasSwapControlTear ? -1 : 1) : 0;
+    glfwSwapInterval(vsyncType);
 }
 
 
@@ -99,6 +92,8 @@ void AppWindow::Init()
         _windowPtr = nullptr;
         throw StickException("Failed to initialize GLAD OpenGL Loader");
     }
+
+    EnableGLDebug(DebugSeverityLevel::Verbose, true);
 
     CheckSwapControlSupportAndSet(_AppSettings.UseVsync);
 

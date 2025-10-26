@@ -48,5 +48,11 @@ public:
         : StickException(std::format("{} Shader (ID: {}) Error: {}", type, id, std::move(message))) {}
 };
 
+class GfxException : public StickException
+{
+public:
+    explicit GfxException(std::string message) : StickException(std::format("Graphics Error: {}", std::move(message))) {}
+};
+
 
 } // namespace stick

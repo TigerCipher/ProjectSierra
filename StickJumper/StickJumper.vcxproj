@@ -243,7 +243,10 @@
       <AdditionalIncludeDirectories>E:\Rider\StickJumper\\lib\Include\</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="src\Graphics\Buffer.cpp" />
+    <ClCompile Include="src\Graphics\GLDebug.cpp" />
     <ClCompile Include="src\Graphics\Shader.cpp" />
+    <ClCompile Include="src\Graphics\VertexArray.cpp" />
     <ClCompile Include="src\StickJumper.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -330,10 +333,16 @@
     <ClInclude Include="src\Core\AppWindow.h" />
     <ClInclude Include="src\Core\Logger.h" />
     <ClInclude Include="src\Error\StickException.h" />
+    <ClInclude Include="src\Graphics\Buffer.h" />
+    <ClInclude Include="src\Graphics\GLDebug.h" />
     <ClInclude Include="src\Graphics\Shader.h" />
+    <ClInclude Include="src\Graphics\VertexArray.h" />
     <ClInclude Include="src\Types.h" />
     <ClInclude Include="src\Util\AppSettingsSerializer.h" />
     <ClInclude Include="src\Util\SettingsManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="assets\shaders\Basic.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
