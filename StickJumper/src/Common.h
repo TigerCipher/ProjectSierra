@@ -19,7 +19,6 @@
 
 #include "Types.h"
 #include "Error/StickException.h"
-#include "Error/IOException.h"
 #include "Core/Logger.h"
 #include "Core/AppSettings.h"
 

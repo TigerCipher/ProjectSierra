@@ -35,4 +35,18 @@ private:
     std::string _message;
 };
 
+class IOException : public StickException
+{
+public:
+    explicit IOException(std::string message) : StickException(std::format("IO: {}", std::move(message))) {}
+};
+
+class ShaderException : public StickException
+{
+public:
+    explicit ShaderException(std::string type, u32 id, std::string message)
+        : StickException(std::format("{} Shader (ID: {}) Error: {}", type, id, std::move(message))) {}
+};
+
+
 } // namespace stick
