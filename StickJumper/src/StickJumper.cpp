@@ -14,9 +14,6 @@
 // limitations under the License.
 // **************************************************************************** //
 
-
-#include <iostream>
-
 #include "Core/App.h"
 
 using namespace stick;

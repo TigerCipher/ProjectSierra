@@ -16,6 +16,7 @@
 #include "Common.h"
 #include "Shader.h"
 #include "VertexArray.h"
+#include "Texture.h"
 
 namespace stick
 {
@@ -28,8 +29,11 @@ public:
     void BeginFrame(const glm::vec3& clearColor = {0, 0, 0});
     void EndFrame();
 
-    void Draw(const VertexArray& vertexArray, const Shader& shader, const glm::mat4& transform = glm::mat4(1.0f));
-    void Draw(const VertexArray* const vertexArray, const Shader* const shader, const glm::mat4& transform = glm::mat4(1.0f));
+    void BeginScene() const;
+    void EndScene() const;
+
+    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, u32 zIndex = 0);
+    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<Texture>& texture, const glm::vec4& tintColor = glm::vec4(1), u32 zIndex = 0);
 
     void LogFrameStats() const;
 private:
@@ -41,8 +45,11 @@ private:
         u32 IndexCount = 0;
         u32 QuadCount = 0;
         u32 TriangleCount = 0;
+        u32 TextureCount = 0;
     } _stats;
-    
+
+    ref<Shader> _shader;
+    ref<VertexArray> _quadVao;
 };
 
 }

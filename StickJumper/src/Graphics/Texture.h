@@ -1,12 +1,9 @@
 ﻿// **************************************************************************** //
-//    Copyright 2025 Matt Rogers
-//
+// Copyright 2025 Matt Rogers
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
+// http://www.apache.org/licenses/LICENSE-2.0
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,37 +11,32 @@
 // limitations under the License.
 // **************************************************************************** //
 
-
 #pragma once
 
 #include "Common.h"
-#include "AppWindow.h"
-#include "Graphics/Shader.h"
-#include "Graphics/VertexArray.h"
-#include "Graphics/Renderer.h"
-
-#include <chrono>
 
 namespace stick
 {
-class App
+class Texture
 {
 public:
-    App() = default;
-    virtual ~App() = default;
+    Texture(std::string path, bool flipVertical = true);
+    virtual ~Texture();
 
-    void Init();
-    void CreateWindow(const std::string& title, int width, int height);
+    void Bind(u32 slot = 0) const;
+    void Unbind() const;
 
-    void Run();
-    
+    [[nodiscard]] constexpr u32 Id() const { return _id; }
+    [[nodiscard]] constexpr u32 Width() const { return _width; }
+    [[nodiscard]] constexpr u32 Height() const { return _height; }
+
+    [[nodiscard]] constexpr i32 Channels() const { return _channels; }
+
 private:
-    scope<AppWindow> _window;
-    bool _init = false;
-    scope<Renderer> _renderer = nullptr;
-    ref<Texture> _texture = nullptr;
-
-    void LimitFrameRate(std::chrono::time_point<std::chrono::steady_clock> frameStart) const;
+    u32         _id       = 0;
+    i32         _width    = 0;
+    i32         _height   = 0;
+    i32         _channels = 0;
+    std::string _path;
 };
-
-}
+} // namespace stick

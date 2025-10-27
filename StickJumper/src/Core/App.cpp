@@ -49,39 +49,7 @@ void App::CreateWindow(const std::string& title, const int width, const int heig
     _window->Init();
     _init = true;
 
-    _vao    = CreateScope<VertexArray>();
-    _shader = CreateScope<Shader>("./assets/shaders/Basic.glsl");
-
-    // @formatter:off
-    f32 vertices[] = {
-        //   x      y        r     g     b     a
-        -0.5f, -0.5f,    1.0f, 0.0f, 0.0f, 1.0f,
-         0.5f, -0.5f,    0.0f, 1.0f, 0.0f, 1.0f,
-         0.5f,  0.5f,    0.0f, 0.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f,    1.0f, 1.0f, 0.0f, 1.0f
-    };
-
-    u32 indices[] =  {
-        0, 1, 2,
-        2, 3, 0
-    };
-    
-    // @formatter:on
-
-    auto vb = CreateRef<VertexBuffer>(vertices, sizeof(vertices));
-    vb->SetLayout({
-        { ShaderDataType::Float2, "a_Position" },
-        { ShaderDataType::Float4, "a_Color" }
-    });
-
-    _indexBuffer = CreateRef<IndexBuffer>(indices, sizeof(indices) / sizeof(u32));
-
-    _vao->AddVertexBuffer(vb);
-    _vao->SetIndexBuffer(_indexBuffer);
-
-    _shader->Bind();
-    _shader->SetMat4("u_ViewProjection", glm::mat4(1.0f));
-    _shader->SetMat4("u_Transform", glm::mat4(1.0f));
+    _texture = CreateRef<Texture>("./assets/textures/test.png");
 
     _renderer = CreateScope<Renderer>();
 }
@@ -137,8 +105,13 @@ void App::Run()
         }
 
         // Rendering at variable timestep
-        _renderer->BeginFrame();
-        _renderer->Draw(_vao.get(), _shader.get());
+        _renderer->BeginFrame({0.3f,0.1f, 0.4f});
+        _renderer->BeginScene();
+
+        _renderer->DrawQuad({0, 0.5f}, {1, 1}, {0.1f, 0.2f, 0.7f, 1.0f});
+        _renderer->DrawQuad({0.5f, 0.5f}, {1, 1}, _texture, {0.0f, 0.5f, 0.0f, 0.3f});
+        
+        _renderer->EndScene();
         _renderer->EndFrame();
 
         // Present to screen
