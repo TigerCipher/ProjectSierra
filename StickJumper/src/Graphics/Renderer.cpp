@@ -77,12 +77,11 @@ Renderer::Renderer()
     CreateDefaultWhiteTexture();
 
     // Vertex data: position (x, y, z), texCoord (u, v)
-    f32 vertices[] = {
-        // pos              // tex
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom-left
-        0.5f,  -0.5f, 0.0f, 1.0f, 0.0f, // bottom-right
-        0.5f,  0.5f,  0.0f, 1.0f, 1.0f, // top-right
-        -0.5f, 0.5f,  0.0f, 0.0f, 1.0f  // top-left
+    Vertex vertices[] = {
+        { .Position = { -0.5f, -0.5f, 0.0f }, .TexCoord = { 0, 0 }, .TexIndex = 0.0f }, // bottom-left
+        {  .Position = { 0.5f, -0.5f, 0.0f }, .TexCoord = { 1, 0 }, .TexIndex = 0.0f }, // bottom-right
+        {   .Position = { 0.5f, 0.5f, 0.0f }, .TexCoord = { 1, 1 }, .TexIndex = 0.0f }, // top-right
+        {  .Position = { -0.5f, 0.5f, 0.0f }, .TexCoord = { 0, 1 }, .TexIndex = 0.0f }, // top-left
     };
 
     u32 indices[] = { 0, 1, 2, 2, 3, 0 };
@@ -92,7 +91,9 @@ Renderer::Renderer()
 
     vbo->SetLayout({
         { ShaderDataType::Float3, "a_Position" },
-        { ShaderDataType::Float2, "a_TexCoord" }
+        { ShaderDataType::Float4,    "a_Color" },
+        { ShaderDataType::Float2, "a_TexCoord" },
+        {  ShaderDataType::Float, "a_TexIndex" }
     });
 
     _quadVao->AddVertexBuffer(vbo);
@@ -193,12 +194,17 @@ void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const 
         _stats.VertexCount += vtxBuffers[0]->Count();
     }
 }
+void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<SubTexture>& texture,
+                        const glm::vec4& tintColor, const u32 zIndex)
+{
+    DrawQuad(position, size, texture->GetTexture(), tintColor, zIndex);
+}
 
 
 void Renderer::LogFrameStats() const
 {
-    LOG_DEBUG("Frame Stats: DrawCalls={}, Vertices={}, Indices={}, Quads={}, Triangles={}, Textures={}", _stats.DrawCalls, _stats.VertexCount,
-              _stats.IndexCount, _stats.QuadCount, _stats.TriangleCount, _stats.TextureCount);
+    LOG_DEBUG("Frame Stats: DrawCalls={}, Vertices={}, Indices={}, Quads={}, Triangles={}, Textures={}", _stats.DrawCalls,
+              _stats.VertexCount, _stats.IndexCount, _stats.QuadCount, _stats.TriangleCount, _stats.TextureCount);
 }
 
 } // namespace stick

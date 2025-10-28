@@ -50,6 +50,8 @@ void App::CreateWindow(const std::string& title, const int width, const int heig
     _init = true;
 
     _texture = CreateRef<Texture>("./assets/textures/test.png");
+    _spriteSheet = CreateRef<Texture>("./assets/textures/spritesheet.png");
+    _sprite = CreateRef<SubTexture>(_spriteSheet, glm::vec2(1, 0), 32);
 
     _renderer = CreateScope<Renderer>();
 }
@@ -110,6 +112,7 @@ void App::Run()
 
         _renderer->DrawQuad({0, 0.5f}, {1, 1}, {0.1f, 0.2f, 0.7f, 1.0f});
         _renderer->DrawQuad({0.5f, 0.5f}, {1, 1}, _texture, {0.0f, 0.5f, 0.0f, 0.3f});
+        _renderer->DrawQuad({0.5f, 0.5f}, {1, 1}, _sprite, {0, 1.0f, 1.0f, 1.0f});
         
         _renderer->EndScene();
         _renderer->EndFrame();

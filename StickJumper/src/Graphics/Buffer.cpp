@@ -67,6 +67,14 @@ VertexBuffer::VertexBuffer(const f32* data, const u32 size)
     LOG_DEBUG("Vertex Buffer created: ID={}", _id);
 }
 
+VertexBuffer::VertexBuffer(const Vertex* data, const u32 count) : _count(count)
+{
+    glCreateBuffers(1, &_id);
+    glBindBuffer(GL_ARRAY_BUFFER, _id);
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(count) * sizeof(Vertex), data, GL_STATIC_DRAW);
+    LOG_DEBUG("Vertex Buffer created: ID={}", _id);
+}
+
 VertexBuffer::~VertexBuffer()
 {
     LOG_DEBUG("Vertex Buffer destroyed: ID={}", _id);
@@ -98,7 +106,7 @@ void VertexBuffer::SetLayout(const BufferLayout& layout)
         i32 bufferSize = 0;
         glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
         _count = bufferSize / _layout.Stride();
-    }else
+    } else
     {
         LOG_WARN("VertexBuffer layout stride is 0, cannot calculate vertex count");
         _count = 0;
@@ -109,7 +117,8 @@ IndexBuffer::IndexBuffer(const u32* indices, const u32 count) : _count(count)
 {
     glCreateBuffers(1, &_id);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _id);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(u32), indices, GL_STATIC_DRAW);  // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(u32), indices,
+                 GL_STATIC_DRAW); // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
     LOG_DEBUG("Index Buffer created: ID={}", _id);
 }
 

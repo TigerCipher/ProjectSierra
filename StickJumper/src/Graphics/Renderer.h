@@ -34,6 +34,7 @@ public:
 
     void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, u32 zIndex = 0);
     void DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<Texture>& texture, const glm::vec4& tintColor = glm::vec4(1), u32 zIndex = 0);
+    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<SubTexture>& texture, const glm::vec4& tintColor = glm::vec4(1), u32 zIndex = 0);
 
     void LogFrameStats() const;
 private:

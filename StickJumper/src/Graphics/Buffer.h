@@ -15,6 +15,8 @@
 #pragma once
 
 #include "Common.h"
+#include "Vertex.h"
+
 #include <vector>
 #include <string>
 
@@ -70,6 +72,7 @@ class VertexBuffer
 {
 public:
     VertexBuffer(const f32* data, u32 size);
+    VertexBuffer(const Vertex* data, u32 count);
     virtual ~VertexBuffer();
 
     void Bind() const;

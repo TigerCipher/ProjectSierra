@@ -14,6 +14,7 @@
 #pragma once
 
 #include "Common.h"
+#include <glm/glm.hpp>
 
 namespace stick
 {
@@ -39,4 +40,26 @@ private:
     i32         _channels = 0;
     std::string _path;
 };
+
+
+class SubTexture
+{
+public:
+    SubTexture(const ref<Texture>& texture, const glm::vec2& coords, const glm::vec2& cellSize,
+               const glm::vec2& spriteSize = { 1.0f, 1.0f });
+    
+    SubTexture(const ref<Texture>& texture, const glm::vec2& coords, f32 cellSize, const glm::vec2& spriteSize = { 1.0f, 1.0f }) :
+        SubTexture(texture, coords, {cellSize, cellSize}, spriteSize)
+    {}
+
+    virtual ~SubTexture() = default;
+
+    [[nodiscard]] const ref<Texture>&        GetTexture() const { return _texture; }
+    [[nodiscard]] constexpr const glm::vec2* TexCoords() const { return _texCoords; }
+
+private:
+    ref<Texture> _texture = nullptr;
+    glm::vec2    _texCoords[4]{};
+};
+
 } // namespace stick

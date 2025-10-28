@@ -27,27 +27,24 @@ Texture::Texture(std::string path, bool flipVertical) : _path(std::move(path))
     LOG_INFO("Loading texture from file: {}", _path);
     stbi_set_flip_vertically_on_load(flipVertical);
 
-    u8* data = stbi_load(_path.c_str(),
-        &_width,
-        &_height,
-        &_channels, 0);
+    u8* data = stbi_load(_path.c_str(), &_width, &_height, &_channels, 0);
 
     if (!data)
     {
         throw IOException("Failed to load texture from file '" + _path + "'");
     }
 
-    GLint internalFormat = 0;
-    GLenum dataFormat = 0;
+    GLint  internalFormat = 0;
+    GLenum dataFormat     = 0;
     if (_channels == 4)
     {
         internalFormat = GL_RGBA8;
-        dataFormat = GL_RGBA;
-    }else if (_channels == 3)
+        dataFormat     = GL_RGBA;
+    } else if (_channels == 3)
     {
         internalFormat = GL_RGB8;
-        dataFormat = GL_RGB;
-    }else
+        dataFormat     = GL_RGB;
+    } else
     {
         stbi_image_free(data);
         throw GfxException("Unsupported texture format with " + std::to_string(_channels) + " channels: " + _path);
@@ -85,6 +82,23 @@ void Texture::Bind(const u32 slot) const
 void Texture::Unbind() const
 {
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+
+SubTexture::SubTexture(const ref<Texture>& texture, const glm::vec2& coords, const glm::vec2& cellSize,
+                       const glm::vec2& spriteSize) :
+    _texture(texture)
+{
+    glm::vec2 min = { (coords.x * cellSize.x) / static_cast<f32>(texture->Width()),
+                      (coords.y * cellSize.y) / static_cast<f32>(texture->Height()) };
+
+    glm::vec2 max = { ((coords.x + spriteSize.x) * cellSize.x) / static_cast<f32>(texture->Width()),
+                      ((coords.y + spriteSize.y) * cellSize.y) / static_cast<f32>(texture->Height()) };
+
+    _texCoords[0] = { min.x, min.y }; // Bottom-left
+    _texCoords[1] = { max.x, min.y }; // Bottom-right
+    _texCoords[2] = { max.x, max.y }; // Top-right
+    _texCoords[3] = { min.x, max.y }; // Top-left
 }
 
 } // namespace stick

@@ -43,6 +43,8 @@ private:
     bool _init = false;
     scope<Renderer> _renderer = nullptr;
     ref<Texture> _texture = nullptr;
+    ref<Texture> _spriteSheet = nullptr;
+    ref<SubTexture> _sprite = nullptr;
 
     void LimitFrameRate(std::chrono::time_point<std::chrono::steady_clock> frameStart) const;
 };
