@@ -87,7 +87,7 @@ void Texture::Unbind() const
 
 SubTexture::SubTexture(const ref<Texture>& texture, const glm::vec2& coords, const glm::vec2& cellSize,
                        const glm::vec2& spriteSize) :
-    _texture(texture)
+    _texture(texture), _cellSize(cellSize)
 {
     glm::vec2 min = { (coords.x * cellSize.x) / static_cast<f32>(texture->Width()),
                       (coords.y * cellSize.y) / static_cast<f32>(texture->Height()) };

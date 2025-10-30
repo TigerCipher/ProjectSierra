@@ -37,6 +37,7 @@ public:
     void SetVec4(const std::string& name, f32 value[4]) const;
     void SetVec4(const std::string& name, const glm::vec4& value) const;
     void SetMat4(const std::string& name, const glm::mat4& value) const;
+    void SetIntArray(const std::string& name, const i32* value, i32 count) const;
 
 private:
     u32                                  _id = 0;

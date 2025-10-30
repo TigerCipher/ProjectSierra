@@ -71,7 +71,7 @@ VertexBuffer::VertexBuffer(const Vertex* data, const u32 count) : _count(count)
 {
     glCreateBuffers(1, &_id);
     glBindBuffer(GL_ARRAY_BUFFER, _id);
-    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(count) * sizeof(Vertex), data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, count * sizeof(Vertex), data, GL_STATIC_DRAW);
     LOG_DEBUG("Vertex Buffer created: ID={}", _id);
 }
 
@@ -92,6 +92,12 @@ void VertexBuffer::Unbind() const
 }
 
 void VertexBuffer::SetData(const f32* data, const u32 size) const
+{
+    Bind();
+    glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+}
+
+void VertexBuffer::SetData(const Vertex* data, u32 size) const
 {
     Bind();
     glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);

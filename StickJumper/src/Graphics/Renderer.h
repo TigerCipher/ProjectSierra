@@ -29,11 +29,12 @@ public:
     void BeginFrame(const glm::vec3& clearColor = {0, 0, 0});
     void EndFrame();
 
-    void BeginScene() const;
-    void EndScene() const;
+    void BeginScene();
+    void EndScene();
+    void Flush();
 
     void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, u32 zIndex = 0);
-    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<Texture>& texture, const glm::vec4& tintColor = glm::vec4(1), u32 zIndex = 0);
+    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<Texture>& texture, const glm::vec4& tintColor = glm::vec4(1), u32 zIndex = 0, const glm::vec2* texCoords = nullptr);
     void DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<SubTexture>& texture, const glm::vec4& tintColor = glm::vec4(1), u32 zIndex = 0);
 
     void LogFrameStats() const;
@@ -51,6 +52,17 @@ private:
 
     ref<Shader> _shader;
     ref<VertexArray> _quadVao;
+    ref<VertexBuffer> _quadVbo;
+    ref<IndexBuffer> _quadIbo;
+    std::vector<Vertex> _vertexBufferBase{};
+    u32 _quadCount = 0;
+
+    static constexpr u32 MaxTextureSlots = 32;
+
+    ref<Texture> _textureSlots[MaxTextureSlots];
+    u32 _textureSlotIndex = 1; // 0 = white texture
+
+    void Init();
 };
 
 }

@@ -132,7 +132,12 @@ void Shader::SetMat4(const std::string& name, const glm::mat4& value) const
     glUniformMatrix4fv(glGetUniformLocation(_id, name.c_str()), 1, GL_FALSE, &value[0][0]);
 }
 
-u32 Shader::CompileShader(const std::string& src, u32 type) const
+void Shader::SetIntArray(const std::string& name, const i32* value, const i32 count) const
+{
+    glUniform1iv(glGetUniformLocation(_id, name.c_str()), count, value);
+}
+
+u32 Shader::CompileShader(const std::string& src, const u32 type) const
 {
     const char* srcPtr = src.c_str();
     u32         id     = glCreateShader(type);

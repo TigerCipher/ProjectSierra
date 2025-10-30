@@ -110,9 +110,11 @@ void App::Run()
         _renderer->BeginFrame({0.3f,0.1f, 0.4f});
         _renderer->BeginScene();
 
-        _renderer->DrawQuad({0, 0.5f}, {1, 1}, {0.1f, 0.2f, 0.7f, 1.0f});
-        _renderer->DrawQuad({0.5f, 0.5f}, {1, 1}, _texture, {0.0f, 0.5f, 0.0f, 0.3f});
-        _renderer->DrawQuad({0.5f, 0.5f}, {1, 1}, _sprite, {0, 1.0f, 1.0f, 1.0f});
+        _renderer->DrawQuad({-1, -1}, {50, 50}, {0.1f, 0.2f, 0.7f, 1.0f});
+        _renderer->DrawQuad({-1, 0.5}, {50, 50}, {1, 0.2f, 0.7f, 1.0f});
+        _renderer->DrawQuad({0.5, -1}, {50, 50}, {1, 0.4f, 0.2f, 1.0f});
+        _renderer->DrawQuad({0, 0}, {0.5f, 0.5f}, _texture, {0.0f, 0.5f, 0.0f, 0.3f});
+        _renderer->DrawQuad({-0.5f, -0.5f}, {1, 1}, _sprite, {0, 1.0f, 1.0f, 1.0f});
         
         _renderer->EndScene();
         _renderer->EndFrame();
