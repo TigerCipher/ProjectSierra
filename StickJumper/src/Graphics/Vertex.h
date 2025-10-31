@@ -23,6 +23,7 @@ namespace stick
 struct Vertex
 {
     glm::vec3 Position{};
+    glm::vec4 Color{};
     glm::vec2 TexCoord{};
     f32       TexIndex = 0.0f;
 };

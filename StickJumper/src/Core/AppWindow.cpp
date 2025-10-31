@@ -15,6 +15,8 @@
 // **************************************************************************** //
 
 #include "AppWindow.h"
+
+#include "Graphics/Camera.h"
 #include "Graphics/GLDebug.h"
 
 #include <glad/glad.h>
@@ -97,6 +99,24 @@ void AppWindow::Init()
 
     CheckSwapControlSupportAndSet(_AppSettings.UseVsync);
 
+    glfwSetFramebufferSizeCallback(_windowPtr, [](GLFWwindow* window, i32 width, i32 height) {
+        glViewport(0, 0, width, height);
+
+        const auto data = (WindowData*)glfwGetWindowUserPointer(window);
+        if (!data) return;
+
+        if (data->WorldCamera)
+        {
+            data->WorldCamera->Resize(width, height, data->VirtualWorldHeight);
+        }
+
+        if (data->UiCamera)
+        {
+            // TODO make more like 0, 0 bottom right and width,height top right
+            data->UiCamera->Resize(width, height, data->VirtualWorldHeight);
+        }
+    });
+
     LOG_INFO("Successfully initialized the window");
     _initialized = true;
 }
@@ -111,6 +131,12 @@ void AppWindow::Destroy() noexcept
     glfwTerminate();
     _windowPtr = nullptr;
     _initialized = false;
+
+    if (_windowData)
+    {
+        delete _windowData;
+        _windowData = nullptr;
+    }
 }
 
 bool AppWindow::ShouldClose() const noexcept
@@ -137,5 +163,13 @@ void AppWindow::SetSize(const i32 width, const i32 height) noexcept
     _width = width;
     _height = height;
 }
+
+void AppWindow::SetWindowData(WindowData* data)
+{
+    _windowData = data;
+    glfwSetWindowUserPointer(_windowPtr, _windowData);
+}
+
+
 
 } // namespace stick

@@ -21,7 +21,8 @@ namespace stick
 class Texture
 {
 public:
-    Texture(std::string path, bool flipVertical = true);
+    explicit Texture(const u32 id) : _id(id), _width(1), _height(1) {}
+    explicit Texture(std::string path, bool flipVertical = true);
     virtual ~Texture();
 
     void Bind(u32 slot = 0) const;
@@ -32,6 +33,9 @@ public:
     [[nodiscard]] constexpr u32 Height() const { return _height; }
 
     [[nodiscard]] constexpr i32 Channels() const { return _channels; }
+
+    bool operator==(const Texture& other) const { return _id == other._id; }
+    bool operator!=(const Texture& other) const { return !(*this == other); }
 
 private:
     u32         _id       = 0;
@@ -47,9 +51,9 @@ class SubTexture
 public:
     SubTexture(const ref<Texture>& texture, const glm::vec2& coords, const glm::vec2& cellSize,
                const glm::vec2& spriteSize = { 1.0f, 1.0f });
-    
+
     SubTexture(const ref<Texture>& texture, const glm::vec2& coords, f32 cellSize, const glm::vec2& spriteSize = { 1.0f, 1.0f }) :
-        SubTexture(texture, coords, {cellSize, cellSize}, spriteSize)
+        SubTexture(texture, coords, { cellSize, cellSize }, spriteSize)
     {}
 
     virtual ~SubTexture() = default;
@@ -57,9 +61,13 @@ public:
     [[nodiscard]] const ref<Texture>&        GetTexture() const { return _texture; }
     [[nodiscard]] constexpr const glm::vec2* TexCoords() const { return _texCoords; }
 
+    [[nodiscard]] f32 Width() const { return _cellSize.x; }
+    [[nodiscard]] f32 Height() const {return _cellSize.y;}
+
 private:
     ref<Texture> _texture = nullptr;
     glm::vec2    _texCoords[4]{};
+    glm::vec2 _cellSize{};
 };
 
 } // namespace stick

@@ -21,6 +21,16 @@
 struct GLFWwindow;
 namespace stick
 {
+
+class Camera;
+
+struct WindowData
+{
+    ref<Camera> WorldCamera = nullptr;
+    ref<Camera> UiCamera = nullptr;
+    f32 VirtualWorldHeight = 512.0f;
+};
+
 class AppWindow
 {
 public:
@@ -38,6 +48,8 @@ public:
     void SetTitle(const std::string& title) const noexcept;
     void SetSize(i32 width, i32 height) noexcept;
 
+    void SetWindowData(WindowData* data);
+
     [[nodiscard]] const std::string& Title() const noexcept { return _title; }
     [[nodiscard]] i32 Width() const noexcept { return _width; }
     [[nodiscard]] i32 Height() const noexcept { return _height; }
@@ -48,6 +60,7 @@ private:
     i32         _height      = 480;
     GLFWwindow* _windowPtr   = nullptr;
     bool        _initialized = false;
+    WindowData* _windowData  = nullptr;
 };
 
 } // namespace stick

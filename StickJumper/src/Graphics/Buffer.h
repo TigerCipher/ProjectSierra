@@ -79,6 +79,7 @@ public:
     void Unbind() const;
 
     void SetData(const f32* data, u32 size) const;
+    void SetData(const Vertex* data, u32 size) const;
     
     void SetLayout(const BufferLayout& layout);
 

@@ -27,7 +27,10 @@ namespace
 {
 constexpr f32 LayerSpacing = 0.001f;
 
-u32 _DefaultTexture = 0;
+constexpr u32 MaxQuads    = 1000;
+constexpr u32 MaxVertices = MaxQuads * 4;
+constexpr u32 MaxIndices  = MaxQuads * 6;
+
 
 f32 CalculateZPosition(const u32 zIndex, const glm::vec4& color)
 {
@@ -41,7 +44,9 @@ f32 CalculateZPosition(const u32 zIndex, const glm::vec4& color)
 
 f32 CalculateZPosition(const u32 zIndex, const ref<Texture>& texture)
 {
+    if (!texture) return -static_cast<f32>(zIndex) * LayerSpacing;
     u32 z = zIndex;
+    // TODO get actual alpha value
     if (texture->Channels() > 3 && zIndex == 0)
     {
         z += 1;
@@ -49,59 +54,73 @@ f32 CalculateZPosition(const u32 zIndex, const ref<Texture>& texture)
     return -static_cast<f32>(z) * LayerSpacing;
 }
 
-void CreateDefaultWhiteTexture()
-{
-    constexpr u32 whitePixel = 0xFFFFFFFF;
-    glGenTextures(1, &_DefaultTexture);
-    glBindTexture(GL_TEXTURE_2D, _DefaultTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &whitePixel);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
 } // namespace
 
-Renderer::Renderer()
+Renderer::Renderer(const ref<Camera>& camera)
 {
     LOG_INFO("Initializing renderer");
+    Init();
+    _vertexBufferBase = std::vector<Vertex>(MaxVertices);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    _quadVao = CreateRef<VertexArray>();
+    _quadVbo = CreateRef<VertexBuffer>(_vertexBufferBase.data(), MaxVertices);
 
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-
-    CreateDefaultWhiteTexture();
-
-    // Vertex data: position (x, y, z), texCoord (u, v)
-    Vertex vertices[] = {
-        { .Position = { -0.5f, -0.5f, 0.0f }, .TexCoord = { 0, 0 }, .TexIndex = 0.0f }, // bottom-left
-        {  .Position = { 0.5f, -0.5f, 0.0f }, .TexCoord = { 1, 0 }, .TexIndex = 0.0f }, // bottom-right
-        {   .Position = { 0.5f, 0.5f, 0.0f }, .TexCoord = { 1, 1 }, .TexIndex = 0.0f }, // top-right
-        {  .Position = { -0.5f, 0.5f, 0.0f }, .TexCoord = { 0, 1 }, .TexIndex = 0.0f }, // top-left
-    };
-
-    u32 indices[] = { 0, 1, 2, 2, 3, 0 };
-
-    _quadVao       = CreateRef<VertexArray>();
-    const auto vbo = CreateRef<VertexBuffer>(vertices, sizeof(vertices));
-
-    vbo->SetLayout({
+    _quadVbo->SetLayout({
         { ShaderDataType::Float3, "a_Position" },
         { ShaderDataType::Float4,    "a_Color" },
         { ShaderDataType::Float2, "a_TexCoord" },
         {  ShaderDataType::Float, "a_TexIndex" }
     });
 
-    _quadVao->AddVertexBuffer(vbo);
+    _quadVao->AddVertexBuffer(_quadVbo);
 
-    const auto ibo = CreateRef<IndexBuffer>(indices, sizeof(indices) / sizeof(u32));
-    _quadVao->SetIndexBuffer(ibo);
+    // Index buffer
+    std::vector<u32> indices(MaxIndices);
+
+    u32 offset = 0;
+    for (u32 i = 0; i < MaxQuads; i++)
+    {
+        indices[i * 6 + 0] = offset + 0;
+        indices[i * 6 + 1] = offset + 1;
+        indices[i * 6 + 2] = offset + 2;
+        indices[i * 6 + 3] = offset + 2;
+        indices[i * 6 + 4] = offset + 3;
+        indices[i * 6 + 5] = offset + 0;
+        offset += 4;
+    }
+
+    _quadIbo = CreateRef<IndexBuffer>(indices.data(), MaxIndices);
+
+    _quadVao->SetIndexBuffer(_quadIbo);
 
     _shader = CreateRef<Shader>("assets/shaders/Texture.glsl");
+
+    _camera = camera;
+}
+
+void Renderer::Init()
+{
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+
+    u32 whiteTextureId;
+    {
+        constexpr u32 whitePixel = 0xFFFFFFFF;
+        glCreateTextures(GL_TEXTURE_2D, 1, &whiteTextureId);
+        glTextureStorage2D(whiteTextureId, 1, GL_RGBA8, 1, 1);
+        glTextureSubImage2D(whiteTextureId, 0, 0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &whitePixel);
+    }
+
+    for (int i = 0; i < 32; i++)
+    {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, whiteTextureId);
+    }
+    
+    _textureSlots[0] = CreateRef<Texture>(whiteTextureId);
 }
 
 void Renderer::BeginFrame(const glm::vec3& clearColor)
@@ -114,90 +133,134 @@ void Renderer::BeginFrame(const glm::vec3& clearColor)
 
 void Renderer::EndFrame() {}
 
-void Renderer::BeginScene() const
+void Renderer::BeginScene()
 {
+    _quadCount = 0;
     _shader->Bind();
+    _shader->SetMat4("u_ViewProj", _camera->ViewProjection());
 }
 
-void Renderer::EndScene() const
+void Renderer::EndScene()
 {
+    Flush();
     _shader->Unbind();
+}
+
+void Renderer::Flush()
+{
+    if (_quadCount == 0)
+        return;
+
+
+    for (u32 i = 0; i < _textureSlotIndex; i++)
+        _textureSlots[i]->Bind(i);
+
+    int samplers[32];
+    for (int i = 0; i < 32; i++)
+        samplers[i] = i;
+    _shader->SetIntArray("u_Texture", samplers, 32);
+
+    _quadVbo->SetData(_vertexBufferBase.data(), _quadCount * 4 * sizeof(Vertex));
+    _quadVao->Bind();
+
+    glDrawElements(GL_TRIANGLES, _quadCount * 6, GL_UNSIGNED_INT, nullptr);
+
+    _stats.DrawCalls++;
+    _stats.IndexCount     = _quadCount * 6;
+    _stats.TriangleCount = _stats.IndexCount / 3;
+    _stats.QuadCount    = _quadCount;
+    _stats.VertexCount = _stats.IndexCount / 6;
+    _stats.TextureCount = _textureSlotIndex - 1;
+    
+    _quadCount        = 0;
+    _textureSlotIndex = 1;
 }
 
 void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, const u32 zIndex)
 {
-    constexpr auto model = glm::mat4(1.0f);
-
-    const glm::mat4 transform =
-        glm::translate(model, glm::vec3(position, CalculateZPosition(zIndex, color))) * glm::scale(model, glm::vec3(size, 1.0f));
-
-    _shader->SetMat4("u_Transform", transform);
-    _shader->SetVec4("u_Color", color);
-    _shader->SetInt("u_UseTexture", 0);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, _DefaultTexture);
-    _shader->SetInt("u_Texture", 0);
-
-    const auto indexCount = _quadVao->GetIndexBuffer()->Count();
-
-    _quadVao->Bind();
-    glDrawElements(GL_TRIANGLES, (i32) indexCount, GL_UNSIGNED_INT, nullptr);
-
-    _stats.DrawCalls++;
-    _stats.IndexCount += indexCount;
-
-    const u32 triangles = indexCount / 3;
-    _stats.TriangleCount += triangles;
-
-    const u32 quads = indexCount / 6;
-    _stats.QuadCount += quads;
-
-    if (const auto& vtxBuffers = _quadVao->VertexBuffers(); !vtxBuffers.empty() && vtxBuffers[0])
-    {
-        _stats.VertexCount += vtxBuffers[0]->Count();
-    }
+    DrawQuad(position, size, nullptr, color, zIndex, nullptr);
 }
 
 void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<Texture>& texture, const glm::vec4& tintColor,
-                        const u32 zIndex)
+                        const u32 zIndex, const glm::vec2* texCoords)
 {
-    assert(texture);
-    constexpr auto  model     = glm::mat4(1.0f);
-    const glm::mat4 transform = glm::translate(model, glm::vec3(position, CalculateZPosition(zIndex, texture))) *
-                                glm::scale(model, glm::vec3(size, 1.0f));
+    if (_quadCount > MaxQuads)
+        Flush();
 
-    _shader->SetMat4("u_Transform", transform);
-    _shader->SetVec4("u_Color", tintColor);
-    _shader->SetInt("u_UseTexture", 1);
-
-    texture->Bind(0);
-    _shader->SetInt("u_Texture", 0);
-
-    const auto indexCount = _quadVao->GetIndexBuffer()->Count();
-
-    _quadVao->Bind();
-    glDrawElements(GL_TRIANGLES, (i32) indexCount, GL_UNSIGNED_INT, nullptr);
-
-    _stats.DrawCalls++;
-    _stats.IndexCount += indexCount;
-    _stats.TextureCount += 1;
-
-    const u32 triangles = indexCount / 3;
-    _stats.TriangleCount += triangles;
-
-    const u32 quads = indexCount / 6;
-    _stats.QuadCount += quads;
-
-    if (const auto& vtxBuffers = _quadVao->VertexBuffers(); !vtxBuffers.empty() && vtxBuffers[0])
+    float textureIndex = 0.0f; // Default to white texture
+    if (texture)
     {
-        _stats.VertexCount += vtxBuffers[0]->Count();
+        for (u32 i = 1; i < _textureSlotIndex; ++i)
+        {
+            if (_textureSlots[i] == texture)
+            {
+                textureIndex = (float) i;
+                break;
+            }
+        }
+
+        if (textureIndex == 0.0f)
+        {
+            if (_textureSlotIndex >= MaxTextureSlots)
+                Flush();
+
+            textureIndex                     = (float) _textureSlotIndex;
+            _textureSlots[_textureSlotIndex] = texture;
+            _textureSlotIndex++;
+        }
     }
+
+    constexpr glm::vec2 defaultTexCoords[4] = {
+        { 0.0f, 0.0f },
+        { 1.0f, 0.0f },
+        { 1.0f, 1.0f },
+        { 0.0f, 1.0f }
+    };
+
+    const glm::vec2* finalTexCoords = texCoords ? texCoords : defaultTexCoords;
+
+
+    const f32 calculatedZ = CalculateZPosition(zIndex, texture);
+
+    const u32 vertexOffset = _quadCount * 4;
+
+    const auto texWidth  = (texture ? texture->Width()  : 1);
+    const auto texHeight = (texture ? texture->Height() : 1);
+
+    _vertexBufferBase[vertexOffset + 0] = {
+        .Position = { position.x, position.y, calculatedZ },
+        .Color    = tintColor,
+        .TexCoord = finalTexCoords[0],
+        .TexIndex = textureIndex
+    };
+
+    _vertexBufferBase[vertexOffset + 1] = {
+        .Position = { position.x + size.x, position.y, calculatedZ },
+        .Color    = tintColor,
+        .TexCoord = finalTexCoords[1],
+        .TexIndex = textureIndex
+    };
+
+    _vertexBufferBase[vertexOffset + 2] = {
+        .Position = { position.x + size.x, position.y + size.y, calculatedZ },
+        .Color    = tintColor,
+        .TexCoord = finalTexCoords[2],
+        .TexIndex = textureIndex
+    };
+
+    _vertexBufferBase[vertexOffset + 3] = {
+        .Position = { position.x, position.y + size.y, calculatedZ },
+        .Color    = tintColor,
+        .TexCoord = finalTexCoords[3],
+        .TexIndex = textureIndex
+    };
+
+    _quadCount++;
 }
 void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<SubTexture>& texture,
                         const glm::vec4& tintColor, const u32 zIndex)
 {
-    DrawQuad(position, size, texture->GetTexture(), tintColor, zIndex);
+    DrawQuad(position, size, texture->GetTexture(), tintColor, zIndex, texture->TexCoords());
 }
 
 
@@ -206,5 +269,6 @@ void Renderer::LogFrameStats() const
     LOG_DEBUG("Frame Stats: DrawCalls={}, Vertices={}, Indices={}, Quads={}, Triangles={}, Textures={}", _stats.DrawCalls,
               _stats.VertexCount, _stats.IndexCount, _stats.QuadCount, _stats.TriangleCount, _stats.TextureCount);
 }
+
 
 } // namespace stick

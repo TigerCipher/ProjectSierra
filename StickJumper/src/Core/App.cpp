@@ -31,6 +31,8 @@ namespace stick
 namespace
 {
 
+constexpr f32 PixelsToWorld = 1.0f / 256.0f; // 256 pixels = 1 world unit
+
 SettingsManager _Settings("./app/settings.json");
 
 } // anonymous namespace
@@ -49,11 +51,17 @@ void App::CreateWindow(const std::string& title, const int width, const int heig
     _window->Init();
     _init = true;
 
-    _texture = CreateRef<Texture>("./assets/textures/test.png");
+    _texture     = CreateRef<Texture>("./assets/textures/test.png");
     _spriteSheet = CreateRef<Texture>("./assets/textures/spritesheet.png");
-    _sprite = CreateRef<SubTexture>(_spriteSheet, glm::vec2(1, 0), 32);
+    _sprite      = CreateRef<SubTexture>(_spriteSheet, glm::vec2(1, 0), 32);
 
-    _renderer = CreateScope<Renderer>();
+    constexpr f32 orthoHeight = 512.0f; // total world units tall
+    const f32     aspect      = static_cast<f32>(width) / static_cast<f32>(height);
+    const f32     orthoWidth  = orthoHeight * aspect;
+    _camera                   = CreateRef<Camera>(-orthoWidth * 0.5f, orthoWidth * 0.5f, -orthoHeight * 0.5f, orthoHeight * 0.5f);
+    _renderer                 = CreateScope<Renderer>(_camera);
+
+    _window->SetWindowData(new WindowData{ .WorldCamera = _camera });
 }
 
 void App::Run()
@@ -107,13 +115,15 @@ void App::Run()
         }
 
         // Rendering at variable timestep
-        _renderer->BeginFrame({0.3f,0.1f, 0.4f});
+        _renderer->BeginFrame({ 0.3f, 0.1f, 0.4f });
         _renderer->BeginScene();
 
-        _renderer->DrawQuad({0, 0.5f}, {1, 1}, {0.1f, 0.2f, 0.7f, 1.0f});
-        _renderer->DrawQuad({0.5f, 0.5f}, {1, 1}, _texture, {0.0f, 0.5f, 0.0f, 0.3f});
-        _renderer->DrawQuad({0.5f, 0.5f}, {1, 1}, _sprite, {0, 1.0f, 1.0f, 1.0f});
-        
+        _renderer->DrawQuad({ -150, -200 }, { 50, 50 }, { 0.1f, 0.2f, 0.7f, 1.0f });
+        _renderer->DrawQuad({ 200, 0.5 }, { 50, 50 }, { 1, 0.2f, 0.7f, 1.0f });
+        _renderer->DrawQuad({ 0.5, 200 }, { 50, 50 }, { 1, 0.4f, 0.2f, 1.0f });
+        _renderer->DrawQuad({ -200, -200 }, { 64, 64 }, _texture, { 0.0f, 0.5f, 0.0f, 0.3f });
+        _renderer->DrawQuad({ -0.5f, -0.5f }, { 32, 32 }, _sprite, { 0, 1.0f, 1.0f, 1.0f });
+
         _renderer->EndScene();
         _renderer->EndFrame();
 
