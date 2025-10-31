@@ -41,6 +41,7 @@ public:
 private:
     scope<AppWindow> _window;
     bool _init = false;
+    ref<Camera> _camera = nullptr;
     scope<Renderer> _renderer = nullptr;
     ref<Texture> _texture = nullptr;
     ref<Texture> _spriteSheet = nullptr;

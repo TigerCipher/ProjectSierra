@@ -167,6 +167,7 @@
     <ClCompile Include="src\Core\AppWindow.cpp" />
     <ClCompile Include="src\Core\Logger.cpp" />
     <ClCompile Include="src\Graphics\Buffer.cpp" />
+    <ClCompile Include="src\Graphics\Camera.cpp" />
     <ClCompile Include="src\Graphics\GLDebug.cpp" />
     <ClCompile Include="src\Graphics\Renderer.cpp" />
     <ClCompile Include="src\Graphics\Shader.cpp" />
@@ -260,6 +261,7 @@
     <ClInclude Include="src\Core\Logger.h" />
     <ClInclude Include="src\Error\StickException.h" />
     <ClInclude Include="src\Graphics\Buffer.h" />
+    <ClInclude Include="src\Graphics\Camera.h" />
     <ClInclude Include="src\Graphics\GLDebug.h" />
     <ClInclude Include="src\Graphics\Renderer.h" />
     <ClInclude Include="src\Graphics\Shader.h" />

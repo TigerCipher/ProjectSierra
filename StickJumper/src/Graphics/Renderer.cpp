@@ -26,7 +26,6 @@ namespace stick
 namespace
 {
 constexpr f32 LayerSpacing = 0.001f;
-constexpr f32 PixelsToWorld = 1.0f / 256.0f; // 256 pixels = 1 world unit. TODO: Make adjust with window size?
 
 constexpr u32 MaxQuads    = 1000;
 constexpr u32 MaxVertices = MaxQuads * 4;
@@ -57,7 +56,7 @@ f32 CalculateZPosition(const u32 zIndex, const ref<Texture>& texture)
 
 } // namespace
 
-Renderer::Renderer()
+Renderer::Renderer(const ref<Camera>& camera)
 {
     LOG_INFO("Initializing renderer");
     Init();
@@ -95,6 +94,8 @@ Renderer::Renderer()
     _quadVao->SetIndexBuffer(_quadIbo);
 
     _shader = CreateRef<Shader>("assets/shaders/Texture.glsl");
+
+    _camera = camera;
 }
 
 void Renderer::Init()
@@ -136,6 +137,7 @@ void Renderer::BeginScene()
 {
     _quadCount = 0;
     _shader->Bind();
+    _shader->SetMat4("u_ViewProj", _camera->ViewProjection());
 }
 
 void Renderer::EndScene()
@@ -148,8 +150,6 @@ void Renderer::Flush()
 {
     if (_quadCount == 0)
         return;
-    constexpr auto model = glm::mat4(1.0f);
-    _shader->SetMat4("u_Transform", model); // TODO: camera projection * view
 
 
     for (u32 i = 0; i < _textureSlotIndex; i++)
@@ -210,7 +210,7 @@ void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const 
         }
     }
 
-    const glm::vec2 defaultTexCoords[4] = {
+    constexpr glm::vec2 defaultTexCoords[4] = {
         { 0.0f, 0.0f },
         { 1.0f, 0.0f },
         { 1.0f, 1.0f },
@@ -227,8 +227,6 @@ void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const 
     const auto texWidth  = (texture ? texture->Width()  : 1);
     const auto texHeight = (texture ? texture->Height() : 1);
 
-    glm::vec2 scaledSize = size * glm::vec2(texWidth, texHeight) * PixelsToWorld;
-
     _vertexBufferBase[vertexOffset + 0] = {
         .Position = { position.x, position.y, calculatedZ },
         .Color    = tintColor,
@@ -237,21 +235,21 @@ void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const 
     };
 
     _vertexBufferBase[vertexOffset + 1] = {
-        .Position = { position.x + scaledSize.x, position.y, calculatedZ },
+        .Position = { position.x + size.x, position.y, calculatedZ },
         .Color    = tintColor,
         .TexCoord = finalTexCoords[1],
         .TexIndex = textureIndex
     };
 
     _vertexBufferBase[vertexOffset + 2] = {
-        .Position = { position.x + scaledSize.x, position.y + scaledSize.y, calculatedZ },
+        .Position = { position.x + size.x, position.y + size.y, calculatedZ },
         .Color    = tintColor,
         .TexCoord = finalTexCoords[2],
         .TexIndex = textureIndex
     };
 
     _vertexBufferBase[vertexOffset + 3] = {
-        .Position = { position.x, position.y + scaledSize.y, calculatedZ },
+        .Position = { position.x, position.y + size.y, calculatedZ },
         .Color    = tintColor,
         .TexCoord = finalTexCoords[3],
         .TexIndex = textureIndex
@@ -262,15 +260,7 @@ void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const 
 void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<SubTexture>& texture,
                         const glm::vec4& tintColor, const u32 zIndex)
 {
-    // TODO: Make it so that position is also in world coordinates, and size is the actual size rather than scale.
-    // Maybe an overload so that scale can still be used if we want the size coming from the texture?
-    const auto tex = texture->GetTexture();
-    const glm::vec2 fraction = {
-        texture->Width() / (f32)tex->Width(), 
-        texture->Height() / (f32)tex->Height()
-    };
-
-    DrawQuad(position, size * fraction, tex, tintColor, zIndex, texture->TexCoords());
+    DrawQuad(position, size, texture->GetTexture(), tintColor, zIndex, texture->TexCoords());
 }
 
 

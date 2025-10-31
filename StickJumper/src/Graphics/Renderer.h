@@ -17,13 +17,14 @@
 #include "Shader.h"
 #include "VertexArray.h"
 #include "Texture.h"
+#include "Camera.h"
 
 namespace stick
 {
 class Renderer
 {
 public:
-    Renderer();
+    Renderer(const ref<Camera>& camera);
     virtual ~Renderer() = default;
 
     void BeginFrame(const glm::vec3& clearColor = {0, 0, 0});
@@ -56,6 +57,8 @@ private:
     ref<IndexBuffer> _quadIbo;
     std::vector<Vertex> _vertexBufferBase{};
     u32 _quadCount = 0;
+
+    ref<Camera> _camera = nullptr;
 
     static constexpr u32 MaxTextureSlots = 32;
 
