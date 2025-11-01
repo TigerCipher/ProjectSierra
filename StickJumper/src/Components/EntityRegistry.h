@@ -23,10 +23,10 @@ namespace stick
 class EntityRegistry
 {
 public:
-
     entity_id CreateEntity()
     {
         AddComponent<Transform>(_nextId);
+        _entities.push_back(_nextId);
         return _nextId++;
     }
 
@@ -55,6 +55,12 @@ public:
         return Storage<T>().Get(entity);
     }
 
+    template<typename T>
+    const T& GetComponent(entity_id entity) const
+    {
+        return Storage<T>().Get(entity);
+    }
+
     Transform& GetTransform(const entity_id entity) { return GetComponent<Transform>(entity); }
 
     template<typename T>
@@ -64,8 +70,34 @@ public:
         return storage;
     }
 
+    template<typename T>
+    const ComponentStorage<T>& Storage() const
+    {
+        return const_cast<EntityRegistry*>(this)->Storage<T>();
+    }
+
+    [[nodiscard]] const std::vector<entity_id>& Entities() const { return _entities; }
+
+    template<typename... Components>
+    [[nodiscard]] std::vector<entity_id> GetEntitiesWithComponents() const
+    {
+        std::vector<entity_id> entities;
+
+        for (const entity_id entity : _entities)
+        {
+            if ((Storage<Components>().HasAny(entity) && ...))
+            {
+                entities.push_back(entity);
+            }
+        }
+
+        return entities;
+    }
+
 private:
     entity_id _nextId = 1;
+
+    std::vector<entity_id> _entities;
 };
 
 } // namespace stick

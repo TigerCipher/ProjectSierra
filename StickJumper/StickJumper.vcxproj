@@ -251,6 +251,7 @@
       <AdditionalIncludeDirectories>E:\Rider\StickJumper\\lib\Include\</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="src\Systems\RenderSystem.cpp" />
     <ClCompile Include="src\Util\SettingsManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -271,6 +272,7 @@
     <ClInclude Include="src\Graphics\Texture2D.h" />
     <ClInclude Include="src\Graphics\Vertex.h" />
     <ClInclude Include="src\Graphics\VertexArray.h" />
+    <ClInclude Include="src\Systems\RenderSystem.h" />
     <ClInclude Include="src\Types.h" />
     <ClInclude Include="src\Util\AppSettingsSerializer.h" />
     <ClInclude Include="src\Util\SettingsManager.h" />
@@ -288,9 +290,6 @@
     <Content Include="assets\textures\test.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="src\Systems\" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

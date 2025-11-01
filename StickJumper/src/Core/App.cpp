@@ -26,7 +26,9 @@
 #include "Util/SettingsManager.h"
 
 #include "Components/Component.h"
-#include "Components/SpriteComponent.h"
+#include "Systems/RenderSystem.h"
+
+#include <__msvc_ranges_to.hpp>
 
 namespace stick
 {
@@ -67,10 +69,11 @@ void App::CreateWindow(const std::string& title, const int width, const int heig
 
     _window->SetWindowData(new WindowData{ .WorldCamera = _camera });
 
-    _player = Entity(TransformComponent(glm::vec2{200, -250}, glm::vec2{64, 64}));
-    _camera->SetPosition(_player.Transform()->Position);
-    
-    _player.AddComponent<SpriteComponent>(_sprite);
+    entity_id player = _entityRegistry.CreateEntity();
+    _entityRegistry.GetTransform(player) = Transform(glm::vec2{200, -250}, glm::vec2{64, 64});
+    _camera->SetPosition(_entityRegistry.GetTransform(player).Position);
+
+    _entityRegistry.AddComponent<Sprite>(player, _sprite);
 }
 
 void App::Run()
@@ -133,7 +136,7 @@ void App::Run()
         _renderer.DrawQuad({ -200, -200 }, { 64, 64 }, _texture, { 0.0f, 0.5f, 0.0f, 0.3f });
         // _renderer.DrawQuad({ -0.5f, -0.5f }, { 32, 32 }, _sprite, { 0, 1.0f, 1.0f, 1.0f });
 
-        _player.Render(_renderer);
+        RenderSystem::Render(_renderer, _entityRegistry);
         
         _renderer.EndScene();
         _renderer.EndFrame();

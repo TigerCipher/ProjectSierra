@@ -11,30 +11,16 @@
 // limitations under the License.
 // **************************************************************************** //
 
-
 #pragma once
 
-#include "Component.h"
+#include "Components/EntityRegistry.h"
+#include "Graphics/Renderer.h"
 
 namespace stick
 {
-
-template<typename T>
-class ComponentStorage
+class RenderSystem
 {
 public:
-    void Add(entity_id entity, const T& component) { _components[entity] = component; }
-
-    [[nodiscard]] bool HasAny(entity_id entity) const { return _components.contains(entity); }
-
-    T& Get(entity_id entity) { return _components.at(entity); }
-
-    const T& Get(entity_id entity) const { return _components.at(entity); }
-
-    void Remove(entity_id entity) { _components.erase(entity); }
-
-private:
-    std::unordered_map<entity_id, T> _components;
+    static void Render(Renderer& renderer, const EntityRegistry& registry);
 };
-
 } // namespace stick

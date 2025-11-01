@@ -22,7 +22,7 @@
 #include "Graphics/Shader.h"
 #include "Graphics/VertexArray.h"
 #include "Graphics/Renderer.h"
-#include "Components/Entity.h"
+#include "Components/EntityRegistry.h"
 
 #include <chrono>
 
@@ -48,7 +48,7 @@ private:
     ref<Texture2D> _spriteSheet = nullptr;
     ref<SubTexture2D> _sprite = nullptr;
 
-    Entity _player{};
+    EntityRegistry _entityRegistry;
 
     void LimitFrameRate(std::chrono::time_point<std::chrono::steady_clock> frameStart) const;
 };
