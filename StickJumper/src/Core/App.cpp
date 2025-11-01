@@ -54,9 +54,9 @@ void App::CreateWindow(const std::string& title, const int width, const int heig
     _window->Init();
     _init = true;
 
-    _texture     = CreateRef<Texture>("./assets/textures/test.png");
-    _spriteSheet = CreateRef<Texture>("./assets/textures/spritesheet.png");
-    _sprite      = CreateRef<SubTexture>(_spriteSheet, glm::vec2(1, 0), 32);
+    _texture     = CreateRef<Texture2D>("./assets/textures/test.png");
+    _spriteSheet = CreateRef<Texture2D>("./assets/textures/spritesheet.png");
+    _sprite      = CreateRef<SubTexture2D>(_spriteSheet, glm::vec2(1, 0), 32);
 
     constexpr f32 orthoHeight = 512.0f; // total world units tall
     const f32     aspect      = static_cast<f32>(width) / static_cast<f32>(height);
@@ -67,7 +67,9 @@ void App::CreateWindow(const std::string& title, const int width, const int heig
 
     _window->SetWindowData(new WindowData{ .WorldCamera = _camera });
 
-    _player.AddComponent<TransformComponent>(glm::vec2{100, -50}, glm::vec2{32, 32});
+    _player = Entity(TransformComponent(glm::vec2{200, -250}, glm::vec2{64, 64}));
+    _camera->SetPosition(_player.Transform()->Position);
+    
     _player.AddComponent<SpriteComponent>(_sprite);
 }
 

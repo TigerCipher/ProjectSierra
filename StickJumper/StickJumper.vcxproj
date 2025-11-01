@@ -109,7 +109,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);STICK_ENTITY_SIZE=u16;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -162,7 +162,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Components\SpriteComponent.cpp" />
     <ClCompile Include="src\Core\App.cpp" />
     <ClCompile Include="src\Core\AppSettings.cpp" />
     <ClCompile Include="src\Core\AppWindow.cpp" />
@@ -173,7 +172,7 @@
     <ClCompile Include="src\Graphics\Renderer.cpp" />
     <ClCompile Include="src\Graphics\Shader.cpp" />
     <ClCompile Include="src\Graphics\stb_image.cpp" />
-    <ClCompile Include="src\Graphics\Texture.cpp" />
+    <ClCompile Include="src\Graphics\Texture2D.cpp" />
     <ClCompile Include="src\Graphics\VertexArray.cpp" />
     <ClCompile Include="src\StickJumper.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
@@ -257,8 +256,8 @@
   <ItemGroup>
     <ClInclude Include="src\Common.h" />
     <ClInclude Include="src\Components\Component.h" />
-    <ClInclude Include="src\Components\Entity.h" />
-    <ClInclude Include="src\Components\SpriteComponent.h" />
+    <ClInclude Include="src\Components\ComponentStorage.h" />
+    <ClInclude Include="src\Components\EntityRegistry.h" />
     <ClInclude Include="src\Core\App.h" />
     <ClInclude Include="src\Core\AppSettings.h" />
     <ClInclude Include="src\Core\AppWindow.h" />
@@ -269,7 +268,7 @@
     <ClInclude Include="src\Graphics\GLDebug.h" />
     <ClInclude Include="src\Graphics\Renderer.h" />
     <ClInclude Include="src\Graphics\Shader.h" />
-    <ClInclude Include="src\Graphics\Texture.h" />
+    <ClInclude Include="src\Graphics\Texture2D.h" />
     <ClInclude Include="src\Graphics\Vertex.h" />
     <ClInclude Include="src\Graphics\VertexArray.h" />
     <ClInclude Include="src\Types.h" />
@@ -289,6 +288,9 @@
     <Content Include="assets\textures\test.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\Systems\" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

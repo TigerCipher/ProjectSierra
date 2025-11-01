@@ -24,7 +24,7 @@ public:
     explicit Camera(f32 left, f32 right, f32 bottom, f32 top);
     virtual ~Camera() = default;
 
-    void SetPosition(const glm::vec3& position);
+    void SetPosition(const glm::vec2& position);
     void SetRotation(f32 rotation);
     void SetProjection(f32 left, f32 right, f32 bottom, f32 top);
 

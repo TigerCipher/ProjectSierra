@@ -14,7 +14,7 @@
 // limitations under the License.
 // **************************************************************************** //
 
-#include "Texture.h"
+#include "Texture2D.h"
 
 #include <glad/glad.h>
 #include <stb_image.h>
@@ -22,7 +22,7 @@
 namespace stick
 {
 
-Texture::Texture(std::string path, bool flipVertical) : _path(std::move(path))
+Texture2D::Texture2D(std::string path, bool flipVertical) : _path(std::move(path))
 {
     LOG_INFO("Loading texture from file: {}", _path);
     stbi_set_flip_vertically_on_load(flipVertical);
@@ -67,25 +67,25 @@ Texture::Texture(std::string path, bool flipVertical) : _path(std::move(path))
     LOG_INFO("Texture loaded successfully: {} ({}x{}, {} channels)", _path, _width, _height, _channels);
 }
 
-Texture::~Texture()
+Texture2D::~Texture2D()
 {
     LOG_DEBUG("Texture destroyed: ID={}, Path={}", _id, _path);
     glDeleteTextures(1, &_id);
 }
 
-void Texture::Bind(const u32 slot) const
+void Texture2D::Bind(const u32 slot) const
 {
     glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, _id);
 }
 
-void Texture::Unbind() const
+void Texture2D::Unbind() const
 {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 
-SubTexture::SubTexture(const ref<Texture>& texture, const glm::vec2& coords, const glm::vec2& cellSize,
+SubTexture2D::SubTexture2D(const ref<Texture2D>& texture, const glm::vec2& coords, const glm::vec2& cellSize,
                        const glm::vec2& spriteSize) :
     _texture(texture), _cellSize(cellSize)
 {

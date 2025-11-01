@@ -14,54 +14,62 @@
 #pragma once
 
 #include "Common.h"
-#include "Graphics/Renderer.h"
+#include "Graphics/Texture2D.h"
+
+#include <glm/glm.hpp>
+
+#ifdef STICK_ENTITY_SIZE
+using entity_id = STICK_ENTITY_SIZE;
+#else
+using entity_id = u32;
+#endif
 
 namespace stick
 {
 
-class Entity;
-
-class Component
-{
-public:
-    Component() = default;
-    virtual ~Component() = default;
-
-    virtual void Update(f32 deltaTime) {}
-    virtual void Render(Renderer& renderer) {}
-
-    void SetOwner(Entity* entity) { _owner = entity; }
-    
-    [[nodiscard]] virtual const char* Name() const = 0;
-
-protected:
-    Entity* _owner = nullptr;
-};
-
-
-struct TransformComponent : Component
+struct Transform
 {
     glm::vec2 Position = glm::vec2(0.0f);
-    glm::vec2 Scale = glm::vec2(1.0f);
-    f32 Rotation = 0.0f;
+    glm::vec2 Size     = glm::vec2(1.0f);
+    f32       Rotation = 0.0f;
+    u32       ZIndex   = 0;
 
-    TransformComponent() = default;
-    explicit TransformComponent(const glm::vec2& position) : Position(position) {}
-    TransformComponent(const glm::vec2& position, const glm::vec2& scale) : Position(position), Scale(scale) {}
-    TransformComponent(const glm::vec2& position, const f32 rotation) : Position(position), Rotation(rotation){}
-    TransformComponent(const glm::vec2& position, const glm::vec2& scale, const f32 rotation) : Position(position), Scale(scale), Rotation(rotation) {}
-    
-    [[nodiscard]] const char* Name() const override { return "Transform"; }
+    explicit Transform() = default;
+    Transform(const glm::vec2& position, const glm::vec2& scale, const f32 rotation = 0.0f, const u32 zIndex = 0) :
+        Position(position), Size(scale), Rotation(rotation), ZIndex(zIndex)
+    {}
+    Transform(const glm::vec2& position, const f32 uniformScale, const f32 rotation = 0.0f, const u32 zIndex = 0) :
+        Position(position), Size(glm::vec2(uniformScale)), Rotation(rotation), ZIndex(zIndex)
+    {}
+    Transform(const glm::vec2& position, const glm::vec2& size, const u32 zIndex) : Position(position), Size(size), ZIndex(zIndex)
+    {}
+    Transform(const glm::vec2& position, const f32 uniformScale, const u32 zIndex) :
+        Position(position), Size(glm::vec2(uniformScale)), ZIndex(zIndex)
+    {}
 };
 
-struct QuadComponent : Component
+struct Sprite
+{
+    ref<Texture2D>    Texture    = nullptr;
+    ref<SubTexture2D> SubTexture = nullptr;
+    glm::vec4         TintColor  = glm::vec4(1.0f);
+
+    explicit Sprite() = default;
+    explicit Sprite(const ref<Texture2D>& texture, const glm::vec4& tintColor = glm::vec4(1.0f)) :
+        Texture(texture), TintColor(tintColor)
+    {}
+
+    explicit Sprite(const ref<SubTexture2D>& subTexture, const glm::vec4& tintColor = glm::vec4(1.0f)) :
+        SubTexture(subTexture), TintColor(tintColor)
+    {}
+};
+
+struct Quad
 {
     glm::vec4 Color = glm::vec4(1.0f);
-    
-    QuadComponent() = default;
-    explicit QuadComponent(const glm::vec4& color) : Color(color) {}
 
-    [[nodiscard]] const char* Name() const override { return "Quad"; }
+    explicit Quad() = default;
+    explicit Quad(const glm::vec4& color) : Color(color) {}
 };
 
 } // namespace stick

@@ -16,7 +16,7 @@
 #include "Common.h"
 #include "Shader.h"
 #include "VertexArray.h"
-#include "Texture.h"
+#include "Texture2D.h"
 #include "Camera.h"
 
 namespace stick
@@ -37,8 +37,8 @@ public:
     void Flush();
 
     void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, u32 zIndex = 0);
-    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<Texture>& texture, const glm::vec4& tintColor = glm::vec4(1), u32 zIndex = 0, const glm::vec2* texCoords = nullptr);
-    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<SubTexture>& texture, const glm::vec4& tintColor = glm::vec4(1), u32 zIndex = 0);
+    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<Texture2D>& texture, const glm::vec4& tintColor = glm::vec4(1), u32 zIndex = 0, const glm::vec2* texCoords = nullptr);
+    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<SubTexture2D>& texture, const glm::vec4& tintColor = glm::vec4(1), u32 zIndex = 0);
 
     void LogFrameStats() const;
 private:
@@ -64,7 +64,7 @@ private:
 
     static constexpr u32 MaxTextureSlots = 32;
 
-    ref<Texture> _textureSlots[MaxTextureSlots];
+    ref<Texture2D> _textureSlots[MaxTextureSlots];
     u32 _textureSlotIndex = 1; // 0 = white texture
 
     void InitGraphics();

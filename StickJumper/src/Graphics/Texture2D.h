@@ -18,12 +18,12 @@
 
 namespace stick
 {
-class Texture
+class Texture2D
 {
 public:
-    explicit Texture(const u32 id) : _id(id), _width(1), _height(1) {}
-    explicit Texture(std::string path, bool flipVertical = true);
-    virtual ~Texture();
+    explicit Texture2D(const u32 id) : _id(id), _width(1), _height(1) {}
+    explicit Texture2D(std::string path, bool flipVertical = true);
+    virtual ~Texture2D();
 
     void Bind(u32 slot = 0) const;
     void Unbind() const;
@@ -34,8 +34,8 @@ public:
 
     [[nodiscard]] constexpr i32 Channels() const { return _channels; }
 
-    bool operator==(const Texture& other) const { return _id == other._id; }
-    bool operator!=(const Texture& other) const { return !(*this == other); }
+    bool operator==(const Texture2D& other) const { return _id == other._id; }
+    bool operator!=(const Texture2D& other) const { return !(*this == other); }
 
 private:
     u32         _id       = 0;
@@ -46,28 +46,29 @@ private:
 };
 
 
-class SubTexture
+class SubTexture2D
 {
 public:
-    SubTexture(const ref<Texture>& texture, const glm::vec2& coords, const glm::vec2& cellSize,
-               const glm::vec2& spriteSize = { 1.0f, 1.0f });
+    SubTexture2D(const ref<Texture2D>& texture, const glm::vec2& coords, const glm::vec2& cellSize,
+                 const glm::vec2& spriteSize = { 1.0f, 1.0f });
 
-    SubTexture(const ref<Texture>& texture, const glm::vec2& coords, f32 cellSize, const glm::vec2& spriteSize = { 1.0f, 1.0f }) :
-        SubTexture(texture, coords, { cellSize, cellSize }, spriteSize)
+    SubTexture2D(const ref<Texture2D>& texture, const glm::vec2& coords, f32 cellSize,
+                 const glm::vec2& spriteSize = { 1.0f, 1.0f }) :
+        SubTexture2D(texture, coords, { cellSize, cellSize }, spriteSize)
     {}
 
-    virtual ~SubTexture() = default;
+    virtual ~SubTexture2D() = default;
 
-    [[nodiscard]] const ref<Texture>&        GetTexture() const { return _texture; }
+    [[nodiscard]] const ref<Texture2D>&      Texture() const { return _texture; }
     [[nodiscard]] constexpr const glm::vec2* TexCoords() const { return _texCoords; }
 
     [[nodiscard]] f32 Width() const { return _cellSize.x; }
-    [[nodiscard]] f32 Height() const {return _cellSize.y;}
+    [[nodiscard]] f32 Height() const { return _cellSize.y; }
 
 private:
-    ref<Texture> _texture = nullptr;
-    glm::vec2    _texCoords[4]{};
-    glm::vec2 _cellSize{};
+    ref<Texture2D> _texture = nullptr;
+    glm::vec2      _texCoords[4]{};
+    glm::vec2      _cellSize{};
 };
 
 } // namespace stick

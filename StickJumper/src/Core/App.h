@@ -44,9 +44,9 @@ private:
     bool _init = false;
     ref<Camera> _camera = nullptr;
     Renderer _renderer{};
-    ref<Texture> _texture = nullptr;
-    ref<Texture> _spriteSheet = nullptr;
-    ref<SubTexture> _sprite = nullptr;
+    ref<Texture2D> _texture = nullptr;
+    ref<Texture2D> _spriteSheet = nullptr;
+    ref<SubTexture2D> _sprite = nullptr;
 
     Entity _player{};
 

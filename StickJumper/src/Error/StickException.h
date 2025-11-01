@@ -29,6 +29,11 @@ class StickException : public std::exception
 public:
     explicit StickException(std::string message) : _message(std::format("Stick Exception: {}", std::move(message))) {}
 
+    template<class... Args>
+    explicit StickException(std::format_string<Args...> fmt, Args&&... args) :
+        _message(std::format("Stick Exception: {}", std::format(fmt, std::forward<Args>(args)...)))
+    {}
+
     [[nodiscard]] const char* what() const override { return _message.c_str(); }
 
 private:
@@ -38,21 +43,49 @@ private:
 class IOException : public StickException
 {
 public:
-    explicit IOException(std::string message) : StickException(std::format("IO: {}", std::move(message))) {}
+    explicit IOException(std::string message) : StickException(std::format("IO Error: {}", std::move(message))) {}
+
+    template<class... Args>
+    explicit IOException(std::format_string<Args...> fmt, Args&&... args) :
+        StickException(std::format("IO Error: {}", std::format(fmt, std::forward<Args>(args)...)))
+    {}
 };
 
 class ShaderException : public StickException
 {
 public:
-    explicit ShaderException(std::string type, u32 id, std::string message)
-        : StickException(std::format("{} Shader (ID: {}) Error: {}", type, id, std::move(message))) {}
+    explicit ShaderException(std::string type, u32 id, std::string message) :
+        StickException(std::format("{} Shader (ID: {}) Error: {}", type, id, std::move(message)))
+    {}
+
+    template<class... Args>
+    explicit ShaderException(std::string type, u32 id, std::format_string<Args...> fmt, Args&&... args) :
+        StickException(
+            std::format("{} Shader (ID: {}) Error: {}", std::move(type), id, std::format(fmt, std::forward<Args>(args)...)))
+    {}
 };
 
 class GfxException : public StickException
 {
 public:
     explicit GfxException(std::string message) : StickException(std::format("Graphics Error: {}", std::move(message))) {}
+
+    template<class... Args>
+    explicit GfxException(std::format_string<Args...> fmt, Args&&... args) :
+        StickException(std::format("Graphics Error: {}", std::format(fmt, std::forward<Args>(args)...)))
+    {}
 };
 
+
+class SystemException : public StickException
+{
+public:
+    explicit SystemException(std::string message) : StickException(std::format("System Error: {}", std::move(message))) {}
+
+    template<class... Args>
+    explicit SystemException(std::format_string<Args...> fmt, Args&&... args) :
+        StickException(std::format("System Error: {}", std::format(fmt, std::forward<Args>(args)...)))
+    {}
+};
 
 } // namespace stick

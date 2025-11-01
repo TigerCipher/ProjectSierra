@@ -28,9 +28,9 @@ Camera::Camera(const f32 left, const f32 right, const f32 bottom, const f32 top)
     RecalculateViewProjection();
 }
 
-void Camera::SetPosition(const glm::vec3& position)
+void Camera::SetPosition(const glm::vec2& position)
 {
-    _position = position;
+    _position = glm::vec3(position.x, position.y, 0.0f);
     RecalculateViewProjection();
 }
 

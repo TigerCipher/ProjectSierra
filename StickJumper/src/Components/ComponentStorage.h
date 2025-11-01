@@ -11,31 +11,28 @@
 // limitations under the License.
 // **************************************************************************** //
 
+
 #pragma once
 
-#include "Common.h"
 #include "Component.h"
-#include "Entity.h"
 
 namespace stick
 {
-struct SpriteComponent : Component
+
+template<typename T>
+class ComponentStorage
 {
-    ref<SubTexture> Sprite;
-    glm::vec4 TintColor = glm::vec4(1.0f);
+public:
+    void Add(entity_id entity, const T& component) { _components[entity] = component; }
 
-    SpriteComponent() = default;
-    explicit SpriteComponent(const ref<SubTexture>& sprite) : Sprite(sprite) {}
-    SpriteComponent(const ref<SubTexture>& sprite, const glm::vec4& tintColor) : Sprite(sprite), TintColor(tintColor) {}
+    [[nodiscard]] bool HasAny(entity_id entity) const { return _components.contains(entity); }
 
-    [[nodiscard]] const char* Name() const override { return "Sprite"; }
+    T& Get(entity_id entity) { return _components.at(entity); }
 
-    void Render(Renderer& renderer) override
-    {
-        const auto transform = _owner->GetComponent<TransformComponent>();
-        if (!transform) return;
-        renderer.DrawQuad(transform->Position, transform->Scale, Sprite, TintColor);
-    }
+    void Remove(entity_id entity) { _components.erase(entity); }
+
+private:
+    std::unordered_map<entity_id, T> _components;
 };
 
 } // namespace stick
