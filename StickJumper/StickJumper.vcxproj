@@ -162,6 +162,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Components\SpriteComponent.cpp" />
     <ClCompile Include="src\Core\App.cpp" />
     <ClCompile Include="src\Core\AppSettings.cpp" />
     <ClCompile Include="src\Core\AppWindow.cpp" />
@@ -255,6 +256,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Common.h" />
+    <ClInclude Include="src\Components\Component.h" />
+    <ClInclude Include="src\Components\Entity.h" />
+    <ClInclude Include="src\Components\SpriteComponent.h" />
     <ClInclude Include="src\Core\App.h" />
     <ClInclude Include="src\Core\AppSettings.h" />
     <ClInclude Include="src\Core\AppWindow.h" />

@@ -56,10 +56,11 @@ f32 CalculateZPosition(const u32 zIndex, const ref<Texture>& texture)
 
 } // namespace
 
-Renderer::Renderer(const ref<Camera>& camera)
+
+void Renderer::Init(const ref<Camera>& camera)
 {
     LOG_INFO("Initializing renderer");
-    Init();
+    InitGraphics();
     _vertexBufferBase = std::vector<Vertex>(MaxVertices);
 
     _quadVao = CreateRef<VertexArray>();
@@ -98,7 +99,7 @@ Renderer::Renderer(const ref<Camera>& camera)
     _camera = camera;
 }
 
-void Renderer::Init()
+void Renderer::InitGraphics()
 {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

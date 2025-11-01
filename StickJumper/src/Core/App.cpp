@@ -25,6 +25,9 @@
 #include "Util/AppSettingsSerializer.h"
 #include "Util/SettingsManager.h"
 
+#include "Components/Component.h"
+#include "Components/SpriteComponent.h"
+
 namespace stick
 {
 
@@ -59,9 +62,13 @@ void App::CreateWindow(const std::string& title, const int width, const int heig
     const f32     aspect      = static_cast<f32>(width) / static_cast<f32>(height);
     const f32     orthoWidth  = orthoHeight * aspect;
     _camera                   = CreateRef<Camera>(-orthoWidth * 0.5f, orthoWidth * 0.5f, -orthoHeight * 0.5f, orthoHeight * 0.5f);
-    _renderer                 = CreateScope<Renderer>(_camera);
+
+    _renderer.Init(_camera);
 
     _window->SetWindowData(new WindowData{ .WorldCamera = _camera });
+
+    _player.AddComponent<TransformComponent>(glm::vec2{100, -50}, glm::vec2{32, 32});
+    _player.AddComponent<SpriteComponent>(_sprite);
 }
 
 void App::Run()
@@ -101,7 +108,7 @@ void App::Run()
 
             _window->SetTitle(std::format("Stick Jumper | FPS: {:.2f}", fps));
             LOG_DEBUG("FPS: {:.2f} | Delta: {:.4f} | Frame Time (MS): {:.4f}", fps, deltaTime, frameTimeMs);
-            _renderer->LogFrameStats();
+            _renderer.LogFrameStats();
         }
 
         _window->PollEvents();
@@ -115,17 +122,19 @@ void App::Run()
         }
 
         // Rendering at variable timestep
-        _renderer->BeginFrame({ 0.3f, 0.1f, 0.4f });
-        _renderer->BeginScene();
+        _renderer.BeginFrame({ 0.3f, 0.1f, 0.4f });
+        _renderer.BeginScene();
 
-        _renderer->DrawQuad({ -150, -200 }, { 50, 50 }, { 0.1f, 0.2f, 0.7f, 1.0f });
-        _renderer->DrawQuad({ 200, 0.5 }, { 50, 50 }, { 1, 0.2f, 0.7f, 1.0f });
-        _renderer->DrawQuad({ 0.5, 200 }, { 50, 50 }, { 1, 0.4f, 0.2f, 1.0f });
-        _renderer->DrawQuad({ -200, -200 }, { 64, 64 }, _texture, { 0.0f, 0.5f, 0.0f, 0.3f });
-        _renderer->DrawQuad({ -0.5f, -0.5f }, { 32, 32 }, _sprite, { 0, 1.0f, 1.0f, 1.0f });
+        _renderer.DrawQuad({ -150, -200 }, { 50, 50 }, { 0.1f, 0.2f, 0.7f, 1.0f });
+        _renderer.DrawQuad({ 200, 0.5 }, { 50, 50 }, { 1, 0.2f, 0.7f, 1.0f });
+        _renderer.DrawQuad({ 0.5, 200 }, { 50, 50 }, { 1, 0.4f, 0.2f, 1.0f });
+        _renderer.DrawQuad({ -200, -200 }, { 64, 64 }, _texture, { 0.0f, 0.5f, 0.0f, 0.3f });
+        // _renderer.DrawQuad({ -0.5f, -0.5f }, { 32, 32 }, _sprite, { 0, 1.0f, 1.0f, 1.0f });
 
-        _renderer->EndScene();
-        _renderer->EndFrame();
+        _player.Render(_renderer);
+        
+        _renderer.EndScene();
+        _renderer.EndFrame();
 
         // Present to screen
         _window->SwapBuffers();

@@ -22,6 +22,7 @@
 #include "Graphics/Shader.h"
 #include "Graphics/VertexArray.h"
 #include "Graphics/Renderer.h"
+#include "Components/Entity.h"
 
 #include <chrono>
 
@@ -42,10 +43,12 @@ private:
     scope<AppWindow> _window;
     bool _init = false;
     ref<Camera> _camera = nullptr;
-    scope<Renderer> _renderer = nullptr;
+    Renderer _renderer{};
     ref<Texture> _texture = nullptr;
     ref<Texture> _spriteSheet = nullptr;
     ref<SubTexture> _sprite = nullptr;
+
+    Entity _player{};
 
     void LimitFrameRate(std::chrono::time_point<std::chrono::steady_clock> frameStart) const;
 };

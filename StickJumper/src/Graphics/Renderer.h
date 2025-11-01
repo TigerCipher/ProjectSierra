@@ -24,8 +24,10 @@ namespace stick
 class Renderer
 {
 public:
-    Renderer(const ref<Camera>& camera);
+    Renderer() = default;
     virtual ~Renderer() = default;
+
+    void Init(const ref<Camera>& camera);
 
     void BeginFrame(const glm::vec3& clearColor = {0, 0, 0});
     void EndFrame();
@@ -65,7 +67,7 @@ private:
     ref<Texture> _textureSlots[MaxTextureSlots];
     u32 _textureSlotIndex = 1; // 0 = white texture
 
-    void Init();
+    void InitGraphics();
 };
 
 }
