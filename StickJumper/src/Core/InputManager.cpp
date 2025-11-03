@@ -17,12 +17,13 @@
 
 #include "InputManager.h"
 
+#include <algorithm>
 #include <GLFW/glfw3.h>
 
 namespace stick
 {
 
-void InputManager::Init(GLFWwindow* window)
+void InputHandler::Init(GLFWwindow* window)
 {
     LOG_INFO("Initializing input manager");
     _window = window;
@@ -32,7 +33,7 @@ void InputManager::Init(GLFWwindow* window)
     glfwSetScrollCallback(window, ScrollCallback);
 }
 
-void InputManager::Update()
+void InputHandler::Update()
 {
     _mouseDelta = _mousePosition - _lastMousePosition;
     _lastMousePosition = _mousePosition;
@@ -41,12 +42,12 @@ void InputManager::Update()
     _lastMouseButtons = _mouseButtons;
 }
 
-void InputManager::SetCursorLocked(bool locked)
+void InputHandler::SetCursorLocked(bool locked)
 {
     glfwSetInputMode(_window, GLFW_CURSOR, locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
-void InputManager::KeyCallback(GLFWwindow* window, i32 key, i32 scancode, i32 action, i32 mods)
+void InputHandler::KeyCallback(GLFWwindow* window, i32 key, i32 scancode, i32 action, i32 mods)
 {
     if (action == GLFW_PRESS)
     {
@@ -57,7 +58,7 @@ void InputManager::KeyCallback(GLFWwindow* window, i32 key, i32 scancode, i32 ac
     }
 }
 
-void InputManager::MouseButtonCallback(GLFWwindow* window, i32 button, i32 action, i32 mods)
+void InputHandler::MouseButtonCallback(GLFWwindow* window, i32 button, i32 action, i32 mods)
 {
     if (action == GLFW_PRESS)
     {
@@ -68,7 +69,7 @@ void InputManager::MouseButtonCallback(GLFWwindow* window, i32 button, i32 actio
     }
 }
 
-void InputManager::CursorPositionCallback(GLFWwindow* window, f64 x, f64 y)
+void InputHandler::CursorPositionCallback(GLFWwindow* window, f64 x, f64 y)
 {
     _mousePosition = glm::vec2(x, y);
     if (_firstMouse)
@@ -78,9 +79,75 @@ void InputManager::CursorPositionCallback(GLFWwindow* window, f64 x, f64 y)
     }
 }
 
-void InputManager::ScrollCallback(GLFWwindow* window, f64 xOffset, const f64 yOffset)
+void InputHandler::ScrollCallback(GLFWwindow* window, f64 xOffset, const f64 yOffset)
 {
     _scrollDelta = static_cast<f32>(yOffset);
+}
+
+void InputManager::BindAction(const std::string& name, i32 key)
+{
+    if (auto& keys = _bindings[name]; std::ranges::find(keys, key) == keys.end())
+    {
+        keys.push_back(key);
+    }
+}
+void InputManager::UnbindAction(const std::string& name, i32 key)
+{
+    auto& keys = _bindings[name];
+    keys.erase(std::ranges::remove(keys, key).begin(), keys.end());
+}
+
+void InputManager::ClearAction(const std::string& name)
+{
+    _bindings.erase(name);
+}
+
+bool InputManager::IsActionDown(const std::string& name)
+{
+    const auto it = _bindings.find(name);
+    if (it == _bindings.end())
+        return false;
+
+
+    return std::ranges::any_of(it->second.begin(), it->second.end(), [](auto& b) {
+        return InputHandler::IsKeyDown(b);
+    });
+}
+
+bool InputManager::IsActionPressed(const std::string& name)
+{
+    const auto it = _bindings.find(name);
+    if (it == _bindings.end())
+        return false;
+
+    return std::ranges::any_of(it->second.begin(), it->second.end(), [](auto& b) {
+        return InputHandler::IsKeyPressed(b);
+    });
+}
+
+bool InputManager::IsActionReleased(const std::string& name)
+{
+    const auto it = _bindings.find(name);
+    if (it == _bindings.end())
+        return false;
+
+    return std::ranges::any_of(it->second.begin(), it->second.end(), [](auto& b) {
+        return InputHandler::IsKeyReleased(b);
+    });
+}
+
+void InputManager::LogBindings()
+{
+    LOG_INFO("Current action bindings:");
+    for (const auto& [action, keys] : _bindings)
+    {
+        std::string list;
+        for (const i32 key : keys)
+        {
+            list += std::to_string(key) + " ";
+        }
+        LOG_INFO("  Action '{}': Keys [{}]", action, list);
+    }
 }
 
 } // namespace stick

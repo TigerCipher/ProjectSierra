@@ -48,6 +48,11 @@ void App::Init()
     _Settings.RegisterDefault("app", AppSettings());
     _Settings.Load();
     _AppSettings = _Settings.Get<AppSettings>("app");
+
+    InputManager::BindAction("jump", GLFW_KEY_SPACE);
+    InputManager::BindAction("jump", GLFW_KEY_W);
+    InputManager::BindAction("move_left", GLFW_KEY_A);
+    InputManager::BindAction("move_right", GLFW_KEY_D);
 }
 
 void App::CreateWindow(const std::string& title, const int width, const int height)
@@ -86,6 +91,7 @@ void App::CreateWindow(const std::string& title, const int width, const int heig
     _entityRegistry.GetTransform(texturedQuad2) = Transform(glm::vec2{-100, 0}, glm::vec2{64, 64}, 5u);
     _entityRegistry.AddComponent<Sprite>(texturedQuad2, _texture, glm::vec4{0.0f, 1.0f, 0.3f, 1.0f});
 
+    InputManager::LogBindings();
 }
 
 void App::Run()
@@ -130,21 +136,21 @@ void App::Run()
 
         _window->PollEvents();
         // Handle input
-         if (InputManager::IsKeyPressed(GLFW_KEY_SPACE))
+         if (InputManager::IsActionPressed("jump"))
         {
             LOG_INFO("Space pressed");
         }
 
-        if (InputManager::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_1))
+        if (InputHandler::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_1))
         {
-            LOG_INFO("Mouse clicked at {}, {}", InputManager::GetMousePosition().x, InputManager::GetMousePosition().y);
+            LOG_INFO("Mouse clicked at {}, {}", InputHandler::GetMousePosition().x, InputHandler::GetMousePosition().y);
         }
 
-        auto mouseDelta = InputManager::GetMouseDelta();
-        if (glm::length(mouseDelta) > 0.0f)
-        {
-            LOG_INFO("Mouse moved by {:.4f}, {:.4f}", mouseDelta.x, mouseDelta.y);
-        }
+        // auto mouseDelta = InputHandler::GetMouseDelta();
+        // if (glm::length(mouseDelta) > 0.0f)
+        // {
+        //     LOG_INFO("Mouse moved by {:.4f}, {:.4f}", mouseDelta.x, mouseDelta.y);
+        // }
 
         // Update tick - logic, physics, etc. This happens at a fixed timestep
         while (accumulator >= FixedTimeStep)
@@ -164,7 +170,7 @@ void App::Run()
         // Present to screen
         _window->SwapBuffers();
 
-        InputManager::Update();
+        InputHandler::Update();
 
         LimitFrameRate(now);
     }

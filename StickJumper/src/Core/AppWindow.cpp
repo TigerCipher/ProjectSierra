@@ -121,7 +121,7 @@ void AppWindow::Init()
 
     LOG_INFO("Successfully initialized the window");
 
-    InputManager::Init(_windowPtr);
+    InputHandler::Init(_windowPtr);
     
     _initialized = true;
 }

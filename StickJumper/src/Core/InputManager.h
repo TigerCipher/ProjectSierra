@@ -21,7 +21,7 @@ struct GLFWwindow;
 
 namespace stick
 {
-class InputManager
+class InputHandler
 {
 public:
     static void Init(GLFWwindow* window);
@@ -60,4 +60,22 @@ private:
     static void CursorPositionCallback(GLFWwindow* window, f64 x, f64 y);
     static void ScrollCallback(GLFWwindow* window, f64 xOffset, f64 yOffset);
 };
+
+// TODO: Handle mouse and controller actions as well
+// TODO: Save bindings to settings.json
+class InputManager
+{
+public:
+    static void BindAction(const std::string& name, i32 key);
+    static void UnbindAction(const std::string& name, i32 key);
+    static void ClearAction(const std::string& name);
+    static bool IsActionDown(const std::string& name);
+    static bool IsActionPressed(const std::string& name);
+    static bool IsActionReleased(const std::string& name);
+
+    static void LogBindings();
+private:
+    static inline std::unordered_map<std::string, std::vector<i32>> _bindings;
+};
+
 } // namespace stick
