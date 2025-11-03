@@ -34,8 +34,16 @@ void InputManager::Init(GLFWwindow* window)
 
 void InputManager::Update()
 {
+    _mouseDelta = _mousePosition - _lastMousePosition;
+    _lastMousePosition = _mousePosition;
+    
     _lastKeys         = _keys;
     _lastMouseButtons = _mouseButtons;
+}
+
+void InputManager::SetCursorLocked(bool locked)
+{
+    glfwSetInputMode(_window, GLFW_CURSOR, locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
 void InputManager::KeyCallback(GLFWwindow* window, i32 key, i32 scancode, i32 action, i32 mods)
@@ -62,10 +70,12 @@ void InputManager::MouseButtonCallback(GLFWwindow* window, i32 button, i32 actio
 
 void InputManager::CursorPositionCallback(GLFWwindow* window, f64 x, f64 y)
 {
-    const auto cursorPosition = glm::vec2(x, y);
-    _mouseDelta               = cursorPosition - _lastMousePosition;
-    _lastMousePosition        = _mousePosition;
-    _mousePosition            = cursorPosition;
+    _mousePosition = glm::vec2(x, y);
+    if (_firstMouse)
+    {
+        _lastMousePosition = _mousePosition;
+        _firstMouse        = false;
+    }
 }
 
 void InputManager::ScrollCallback(GLFWwindow* window, f64 xOffset, const f64 yOffset)

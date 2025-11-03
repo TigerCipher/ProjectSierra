@@ -37,6 +37,8 @@ public:
     static const glm::vec2& GetMouseDelta() { return _mouseDelta; }
     static f32              GetScrollDelta() { return _scrollDelta; }
 
+    static void SetCursorLocked(bool locked);
+
 private:
     static inline GLFWwindow* _window = nullptr;
 
@@ -48,6 +50,7 @@ private:
     static inline glm::vec2 _mousePosition{ 0.0f, 0.0f };
     static inline glm::vec2 _lastMousePosition{ 0.0f, 0.0f };
     static inline glm::vec2 _mouseDelta{ 0.0f, 0.0f };
+    static inline bool _firstMouse = true;
 
     static inline f32 _scrollDelta = 0.0f;
 

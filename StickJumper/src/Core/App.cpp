@@ -135,6 +135,17 @@ void App::Run()
             LOG_INFO("Space pressed");
         }
 
+        if (InputManager::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_1))
+        {
+            LOG_INFO("Mouse clicked at {}, {}", InputManager::GetMousePosition().x, InputManager::GetMousePosition().y);
+        }
+
+        auto mouseDelta = InputManager::GetMouseDelta();
+        if (glm::length(mouseDelta) > 0.0f)
+        {
+            LOG_INFO("Mouse moved by {:.4f}, {:.4f}", mouseDelta.x, mouseDelta.y);
+        }
+
         // Update tick - logic, physics, etc. This happens at a fixed timestep
         while (accumulator >= FixedTimeStep)
         {
