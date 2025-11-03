@@ -26,8 +26,10 @@
 
 #include "Components/Component.h"
 #include "Systems/RenderSystem.h"
+#include "InputManager.h"
 
 #include <__msvc_ranges_to.hpp>
+#include <GLFW/glfw3.h>
 
 namespace stick
 {
@@ -128,6 +130,10 @@ void App::Run()
 
         _window->PollEvents();
         // Handle input
+         if (InputManager::IsKeyPressed(GLFW_KEY_SPACE))
+        {
+            LOG_INFO("Space pressed");
+        }
 
         // Update tick - logic, physics, etc. This happens at a fixed timestep
         while (accumulator >= FixedTimeStep)
@@ -146,6 +152,8 @@ void App::Run()
 
         // Present to screen
         _window->SwapBuffers();
+
+        InputManager::Update();
 
         LimitFrameRate(now);
     }

@@ -18,6 +18,8 @@
 
 #include "Graphics/Camera.h"
 #include "Graphics/GLDebug.h"
+#include "InputManager.h"
+
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -118,6 +120,9 @@ void AppWindow::Init()
     });
 
     LOG_INFO("Successfully initialized the window");
+
+    InputManager::Init(_windowPtr);
+    
     _initialized = true;
 }
 
