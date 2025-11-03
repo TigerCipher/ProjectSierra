@@ -14,15 +14,10 @@
 #pragma once
 
 #include "Common.h"
+#include "Graphics/Color.h"
 #include "Graphics/Texture2D.h"
 
 #include <glm/glm.hpp>
-
-#ifdef STICK_ENTITY_SIZE
-using entity_id = STICK_ENTITY_SIZE;
-#else
-using entity_id = u32;
-#endif
 
 namespace stick
 {
@@ -66,7 +61,7 @@ struct Sprite
 
 struct Quad
 {
-    glm::vec4 Color = glm::vec4(1.0f);
+    Color_t Color;
 
     explicit Quad() = default;
     explicit Quad(const glm::vec4& color) : Color(color) {}

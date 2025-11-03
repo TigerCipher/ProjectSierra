@@ -16,6 +16,8 @@
 
 #include "Component.h"
 
+#include "Entity.h"
+
 namespace stick
 {
 
@@ -29,7 +31,7 @@ public:
 
     T& Get(entity_id entity) { return _components.at(entity); }
 
-    const T& Get(entity_id entity) const { return _components.at(entity); }
+    [[nodiscard]] const T& Get(entity_id entity) const { return _components.at(entity); }
 
     void Remove(entity_id entity) { _components.erase(entity); }
 

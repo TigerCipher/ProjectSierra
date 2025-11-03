@@ -21,32 +21,20 @@ namespace stick
 {
 
 
-void RenderSystem::Render(Renderer& renderer, const EntityRegistry& registry)
+void RenderSystem::Render(const Renderer& renderer, const EntityRegistry& registry)
 {
-    const auto quadEntities = registry.GetEntitiesWithComponents<Quad>();
+    registry.ForEach<Transform, Quad>(
+        [&renderer](const Entity& e, const Transform& t, const Quad& q) { renderer.DrawQuad(t.Position, t.Size, q.Color, t.ZIndex); });
 
-    for (const auto& entity : quadEntities)
-    {
-        const auto& transform = registry.GetComponent<Transform>(entity);
-        const auto& quad      = registry.GetComponent<Quad>(entity);
-
-        renderer.DrawQuad(transform.Position, transform.Size, quad.Color, transform.ZIndex);
-    }
-
-    const auto spriteEntities = registry.GetEntitiesWithComponents<Sprite>();
-    for (const auto& entity : spriteEntities)
-    {
-        const auto& transform = registry.GetComponent<Transform>(entity);
-        const auto& sprite    = registry.GetComponent<Sprite>(entity);
-
-        if (sprite.SubTexture)
+    registry.ForEach<Transform, Sprite>([&renderer](const Entity& e, const Transform& t, const Sprite& s) {
+        if (s.SubTexture)
         {
-            renderer.DrawQuad(transform.Position, transform.Size, sprite.SubTexture, sprite.TintColor, transform.ZIndex);
-        } else if (sprite.Texture)
+            renderer.DrawQuad(t.Position, t.Size, s.SubTexture, s.TintColor, t.ZIndex);
+        } else if (s.Texture)
         {
-            renderer.DrawQuad(transform.Position, transform.Size, sprite.Texture, sprite.TintColor, transform.ZIndex);
+            renderer.DrawQuad(t.Position, t.Size, s.Texture, s.TintColor, t.ZIndex);
         }
-    }
+    });
 }
 
 } // namespace stick

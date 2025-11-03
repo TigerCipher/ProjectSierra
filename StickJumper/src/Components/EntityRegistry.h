@@ -16,6 +16,8 @@
 
 #include "Component.h"
 #include "ComponentStorage.h"
+#include "ComponentId.h"
+#include "Entity.h"
 
 namespace stick
 {
@@ -23,45 +25,73 @@ namespace stick
 class EntityRegistry
 {
 public:
-    entity_id CreateEntity()
+    Entity& CreateEntity(const Transform& transform = Transform())
     {
-        AddComponent<Transform>(_nextId);
-        _entities.push_back(_nextId);
-        return _nextId++;
+        auto& newEntity = _entities.emplace_back(_nextId++);
+        AddComponent<Transform>(newEntity, transform);
+        return newEntity;
     }
 
     template<typename T, typename... Args>
-    void AddComponent(entity_id entity, Args&&... args)
+    void AddComponent(Entity& entity, Args&&... args)
     {
-        ComponentStorage<T>& storage = Storage<T>();
-
-        if (storage.HasAny(entity))
+        if (entity.HasComponent<T>())
         {
-            throw SystemException("Entity {} already has component of type {}", entity, typeid(T).name());
+            throw SystemException("Entity {} already has component of type {}", entity.Id, typeid(T).name());
         }
 
-        storage.Add(entity, T(std::forward<Args>(args)...));
+        ComponentStorage<T>& storage = Storage<T>();
+        storage.Add(entity.Id, T(std::forward<Args>(args)...));
+        entity.AddComponent<T>();
     }
 
     template<typename T>
-    bool HasComponent(entity_id entity)
+    bool HasComponent(entity_id entityId)
     {
-        return Storage<T>().HasAny(entity);
+        return Storage<T>().HasAny(entityId);
     }
 
     template<typename T>
-    T& GetComponent(entity_id entity)
+    T& GetComponent(const Entity& entity)
     {
-        return Storage<T>().Get(entity);
+        return Storage<T>().Get(entity.Id);
     }
 
     template<typename T>
-    const T& GetComponent(entity_id entity) const
+    [[nodiscard]] const T& GetComponent(const Entity& entity) const
     {
-        return Storage<T>().Get(entity);
+        return Storage<T>().Get(entity.Id);
     }
 
-    Transform& GetTransform(const entity_id entity) { return GetComponent<Transform>(entity); }
+    template<typename... Components, typename Func>
+    void ForEach(Func&& func)
+    {
+        component_mask requiredMask = CreateComponentMask<Components...>();
+
+        for (auto& entity : _entities)
+        {
+            if (!entity.HasComponents<Components...>())
+                continue;
+
+            func(entity, GetComponent<Components>(entity)...);
+        }
+    }
+
+    template<typename... Components, typename Func>
+    void ForEach(Func&& func) const
+    {
+        component_mask requiredMask = CreateComponentMask<Components...>();
+
+        for (const auto& entity : _entities)
+        {
+            if (!entity.HasComponents<Components...>())
+                continue;
+
+            func(entity, GetComponent<Components>(entity)...);
+        }
+    }
+
+    Transform& GetTransform(const Entity& entity) { return GetComponent<Transform>(entity); }
 
     template<typename T>
     ComponentStorage<T>& Storage()
@@ -71,33 +101,18 @@ public:
     }
 
     template<typename T>
-    const ComponentStorage<T>& Storage() const
+    [[nodiscard]] const ComponentStorage<T>& Storage() const
     {
         return const_cast<EntityRegistry*>(this)->Storage<T>();
     }
 
-    [[nodiscard]] const std::vector<entity_id>& Entities() const { return _entities; }
+    [[nodiscard]] const std::vector<Entity>& Entities() const { return _entities; }
 
-    template<typename... Components>
-    [[nodiscard]] std::vector<entity_id> GetEntitiesWithComponents() const
-    {
-        std::vector<entity_id> entities;
-
-        for (const entity_id entity : _entities)
-        {
-            if ((Storage<Components>().HasAny(entity) && ...))
-            {
-                entities.push_back(entity);
-            }
-        }
-
-        return entities;
-    }
 
 private:
     entity_id _nextId = 1;
 
-    std::vector<entity_id> _entities;
+    std::vector<Entity> _entities;
 };
 
 } // namespace stick

@@ -256,8 +256,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Common.h" />
+    <ClInclude Include="src\Components\ComponentId.h" />
     <ClInclude Include="src\Components\Component.h" />
     <ClInclude Include="src\Components\ComponentStorage.h" />
+    <ClInclude Include="src\Components\Entity.h" />
     <ClInclude Include="src\Components\EntityRegistry.h" />
     <ClInclude Include="src\Core\App.h" />
     <ClInclude Include="src\Core\AppSettings.h" />
@@ -266,6 +268,7 @@
     <ClInclude Include="src\Error\StickException.h" />
     <ClInclude Include="src\Graphics\Buffer.h" />
     <ClInclude Include="src\Graphics\Camera.h" />
+    <ClInclude Include="src\Graphics\Color.h" />
     <ClInclude Include="src\Graphics\GLDebug.h" />
     <ClInclude Include="src\Graphics\Renderer.h" />
     <ClInclude Include="src\Graphics\Shader.h" />

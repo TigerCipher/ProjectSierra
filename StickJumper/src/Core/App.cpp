@@ -18,7 +18,6 @@
 #include "App.h"
 
 #include <algorithm>
-#include <glad/glad.h>
 #include <chrono>
 #include <thread>
 
@@ -69,11 +68,22 @@ void App::CreateWindow(const std::string& title, const int width, const int heig
 
     _window->SetWindowData(new WindowData{ .WorldCamera = _camera });
 
-    entity_id player = _entityRegistry.CreateEntity();
-    _entityRegistry.GetTransform(player) = Transform(glm::vec2{200, -250}, glm::vec2{64, 64});
-    _camera->SetPosition(_entityRegistry.GetTransform(player).Position);
-
+    auto& player = _entityRegistry.CreateEntity(Transform(glm::vec2{200, -250}, glm::vec2{64, 64}));
     _entityRegistry.AddComponent<Sprite>(player, _sprite);
+    // _camera->SetPosition(_entityRegistry.GetTransform(player).Position);
+
+    auto& pinkQuad = _entityRegistry.CreateEntity();
+    _entityRegistry.GetTransform(pinkQuad) = Transform(glm::vec2{-100, 0}, glm::vec2{64, 64});
+    _entityRegistry.AddComponent<Quad>(pinkQuad, colors::Magenta);
+
+    auto& texturedQuad = _entityRegistry.CreateEntity();
+    _entityRegistry.GetTransform(texturedQuad) = Transform(glm::vec2{0, 100}, glm::vec2{64, 64});
+    _entityRegistry.AddComponent<Sprite>(texturedQuad, _texture);
+
+    auto& texturedQuad2 = _entityRegistry.CreateEntity();
+    _entityRegistry.GetTransform(texturedQuad2) = Transform(glm::vec2{-100, 0}, glm::vec2{64, 64}, 5u);
+    _entityRegistry.AddComponent<Sprite>(texturedQuad2, _texture, glm::vec4{0.0f, 1.0f, 0.3f, 1.0f});
+
 }
 
 void App::Run()
@@ -130,16 +140,9 @@ void App::Run()
         _renderer.BeginFrame({ 0.3f, 0.1f, 0.4f });
         _renderer.BeginScene();
 
-        _renderer.DrawQuad({ -150, -200 }, { 50, 50 }, { 0.1f, 0.2f, 0.7f, 1.0f });
-        _renderer.DrawQuad({ 200, 0.5 }, { 50, 50 }, { 1, 0.2f, 0.7f, 1.0f });
-        _renderer.DrawQuad({ 0.5, 200 }, { 50, 50 }, { 1, 0.4f, 0.2f, 1.0f });
-        _renderer.DrawQuad({ -200, -200 }, { 64, 64 }, _texture, { 0.0f, 0.5f, 0.0f, 0.3f });
-        // _renderer.DrawQuad({ -0.5f, -0.5f }, { 32, 32 }, _sprite, { 0, 1.0f, 1.0f, 1.0f });
-
         RenderSystem::Render(_renderer, _entityRegistry);
         
         _renderer.EndScene();
-        _renderer.EndFrame();
 
         // Present to screen
         _window->SwapBuffers();

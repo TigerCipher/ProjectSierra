@@ -32,26 +32,9 @@ constexpr u32 MaxVertices = MaxQuads * 4;
 constexpr u32 MaxIndices  = MaxQuads * 6;
 
 
-f32 CalculateZPosition(const u32 zIndex, const glm::vec4& color)
+f32 CalculateZPosition(const u32 zIndex)
 {
-    u32 z = zIndex;
-    if (color.a < 1.0f && zIndex == 0)
-    {
-        z += 1;
-    }
-    return -static_cast<f32>(z) * LayerSpacing;
-}
-
-f32 CalculateZPosition(const u32 zIndex, const ref<Texture2D>& texture)
-{
-    if (!texture) return -static_cast<f32>(zIndex) * LayerSpacing;
-    u32 z = zIndex;
-    // TODO get actual alpha value
-    if (texture->Channels() > 3 && zIndex == 0)
-    {
-        z += 1;
-    }
-    return -static_cast<f32>(z) * LayerSpacing;
+    return static_cast<f32>(zIndex) * LayerSpacing;
 }
 
 } // namespace
@@ -132,8 +115,6 @@ void Renderer::BeginFrame(const glm::vec3& clearColor)
     _stats = {};
 }
 
-void Renderer::EndFrame() {}
-
 void Renderer::BeginScene()
 {
     _quadCount = 0;
@@ -147,7 +128,7 @@ void Renderer::EndScene()
     _shader->Unbind();
 }
 
-void Renderer::Flush()
+void Renderer::Flush() const
 {
     if (_quadCount == 0)
         return;
@@ -177,13 +158,13 @@ void Renderer::Flush()
     _textureSlotIndex = 1;
 }
 
-void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, const u32 zIndex)
+void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Color_t& color, const u32 zIndex) const
 {
     DrawQuad(position, size, nullptr, color, zIndex, nullptr);
 }
 
-void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<Texture2D>& texture, const glm::vec4& tintColor,
-                        const u32 zIndex, const glm::vec2* texCoords)
+void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<Texture2D>& texture, const Color_t& tintColor,
+                        const u32 zIndex, const glm::vec2* texCoords) const
 {
     if (_quadCount > MaxQuads)
         Flush();
@@ -221,12 +202,9 @@ void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const 
     const glm::vec2* finalTexCoords = texCoords ? texCoords : defaultTexCoords;
 
 
-    const f32 calculatedZ = CalculateZPosition(zIndex, texture);
+    const f32 calculatedZ = CalculateZPosition(zIndex);
 
     const u32 vertexOffset = _quadCount * 4;
-
-    const auto texWidth  = (texture ? texture->Width()  : 1);
-    const auto texHeight = (texture ? texture->Height() : 1);
 
     _vertexBufferBase[vertexOffset + 0] = {
         .Position = { position.x, position.y, calculatedZ },
@@ -259,7 +237,7 @@ void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const 
     _quadCount++;
 }
 void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<SubTexture2D>& texture,
-                        const glm::vec4& tintColor, const u32 zIndex)
+                        const Color_t& tintColor, const u32 zIndex) const
 {
     DrawQuad(position, size, texture->Texture(), tintColor, zIndex, texture->TexCoords());
 }

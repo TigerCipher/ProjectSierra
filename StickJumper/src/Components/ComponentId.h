@@ -11,16 +11,39 @@
 // limitations under the License.
 // **************************************************************************** //
 
+
 #pragma once
 
-#include "Components/EntityRegistry.h"
-#include "Graphics/Renderer.h"
+#include "Common.h"
+
+#include <type_traits>
 
 namespace stick
 {
-class RenderSystem
+
+using component_id = u8; // Supports up to 256 unique component types
+using component_mask = u32; // Supports up to 32 unique components per entity
+constexpr size_t MaxComponents = 32;
+
+inline component_id GetUniqueComponentId()
 {
-public:
-    static void Render(const Renderer& renderer, const EntityRegistry& registry);
-};
+    static component_id lastId = 0;
+    return lastId++;
+}
+
+template<typename T>
+component_id GetComponentTypeId()
+{
+    static component_id typeId = GetUniqueComponentId();
+    return typeId;
+}
+
+template<typename... Components>
+constexpr component_mask CreateComponentMask()
+{
+    component_mask mask = 0;
+    ((mask |= (1 << GetComponentTypeId<Components>())), ...);
+    return mask;
+}
+
 } // namespace stick

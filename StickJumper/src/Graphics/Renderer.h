@@ -18,56 +18,56 @@
 #include "VertexArray.h"
 #include "Texture2D.h"
 #include "Camera.h"
+#include "Color.h"
 
 namespace stick
 {
 class Renderer
 {
 public:
-    Renderer() = default;
+    Renderer()          = default;
     virtual ~Renderer() = default;
 
     void Init(const ref<Camera>& camera);
 
-    void BeginFrame(const glm::vec3& clearColor = {0, 0, 0});
-    void EndFrame();
+    void BeginFrame(const glm::vec3& clearColor = { 0, 0, 0 });
 
     void BeginScene();
     void EndScene();
-    void Flush();
+    void Flush() const;
 
-    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, u32 zIndex = 0);
-    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<Texture2D>& texture, const glm::vec4& tintColor = glm::vec4(1), u32 zIndex = 0, const glm::vec2* texCoords = nullptr);
-    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<SubTexture2D>& texture, const glm::vec4& tintColor = glm::vec4(1), u32 zIndex = 0);
+    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Color_t& color, u32 zIndex = 0) const;
+    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<Texture2D>& texture,
+                  const Color_t& tintColor = Color_t(1), u32 zIndex = 0, const glm::vec2* texCoords = nullptr) const;
+    void DrawQuad(const glm::vec2& position, const glm::vec2& size, const ref<SubTexture2D>& texture,
+                  const Color_t& tintColor = Color_t(1), u32 zIndex = 0) const;
 
     void LogFrameStats() const;
-private:
 
+private:
+    static constexpr u32 MaxTextureSlots = 32;
     struct Stats
     {
-        u32 DrawCalls = 0;
-        u32 VertexCount = 0;
-        u32 IndexCount = 0;
-        u32 QuadCount = 0;
+        u32 DrawCalls     = 0;
+        u32 VertexCount   = 0;
+        u32 IndexCount    = 0;
+        u32 QuadCount     = 0;
         u32 TriangleCount = 0;
-        u32 TextureCount = 0;
-    } _stats;
+        u32 TextureCount  = 0;
+    } mutable _stats;
 
-    ref<Shader> _shader;
-    ref<VertexArray> _quadVao;
+    mutable std::vector<Vertex> _vertexBufferBase{};
+    mutable u32                 _quadCount = 0;
+    mutable ref<Texture2D>      _textureSlots[MaxTextureSlots];
+    mutable u32                 _textureSlotIndex = 1; // 0 = white texture
+
+    ref<Camera>       _camera = nullptr;
+    ref<Shader>       _shader;
+    ref<VertexArray>  _quadVao;
     ref<VertexBuffer> _quadVbo;
-    ref<IndexBuffer> _quadIbo;
-    std::vector<Vertex> _vertexBufferBase{};
-    u32 _quadCount = 0;
-
-    ref<Camera> _camera = nullptr;
-
-    static constexpr u32 MaxTextureSlots = 32;
-
-    ref<Texture2D> _textureSlots[MaxTextureSlots];
-    u32 _textureSlotIndex = 1; // 0 = white texture
+    ref<IndexBuffer>  _quadIbo;
 
     void InitGraphics();
 };
 
-}
+} // namespace stick
