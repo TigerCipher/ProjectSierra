@@ -66,8 +66,10 @@ private:
 class InputManager
 {
 public:
-    static void BindAction(const std::string& name, i32 key);
-    static void UnbindAction(const std::string& name, i32 key);
+    static void BindAction(const std::string& name, Keys::KeyCodes key);
+    static void BindAction(const std::string& name, MouseButtons::Buttons button);
+    static void UnbindAction(const std::string& name, Keys::KeyCodes key);
+    static void UnbindAction(const std::string& name, MouseButtons::Buttons button);
     static void ClearAction(const std::string& name);
     static bool IsActionDown(const std::string& name);
     static bool IsActionPressed(const std::string& name);
@@ -75,7 +77,8 @@ public:
 
     static void LogBindings();
 private:
-    static inline std::unordered_map<std::string, std::vector<i32>> _bindings;
+    static inline std::unordered_map<std::string, std::vector<Keys::KeyCodes>> _keyBindings;
+    static inline std::unordered_map<std::string, std::vector<MouseButtons::Buttons>> _mouseBindings;
 };
 
 } // namespace stick

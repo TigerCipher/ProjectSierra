@@ -84,28 +84,43 @@ void InputHandler::ScrollCallback(GLFWwindow* window, f64 xOffset, const f64 yOf
     _scrollDelta = static_cast<f32>(yOffset);
 }
 
-void InputManager::BindAction(const std::string& name, i32 key)
+void InputManager::BindAction(const std::string& name, Keys::KeyCodes key)
 {
-    if (auto& keys = _bindings[name]; std::ranges::find(keys, key) == keys.end())
+    if (auto& keys = _keyBindings[name]; std::ranges::find(keys, key) == keys.end())
     {
         keys.push_back(key);
     }
 }
-void InputManager::UnbindAction(const std::string& name, i32 key)
+void InputManager::BindAction(const std::string& name, MouseButtons::Buttons button)
 {
-    auto& keys = _bindings[name];
+    if (auto& buttons = _mouseBindings[name]; std::ranges::find(buttons, button) == buttons.end())
+    {
+        buttons.push_back(button);
+    }
+}
+
+void InputManager::UnbindAction(const std::string& name, Keys::KeyCodes key)
+{
+    auto& keys = _keyBindings[name];
     keys.erase(std::ranges::remove(keys, key).begin(), keys.end());
+}
+
+void InputManager::UnbindAction(const std::string& name, MouseButtons::Buttons button)
+{
+    auto& buttons = _mouseBindings[name];
+    buttons.erase(std::ranges::remove(buttons, button).begin(), buttons.end());
 }
 
 void InputManager::ClearAction(const std::string& name)
 {
-    _bindings.erase(name);
+    _keyBindings.erase(name);
+    _mouseBindings.erase(name);
 }
 
 bool InputManager::IsActionDown(const std::string& name)
 {
-    const auto it = _bindings.find(name);
-    if (it == _bindings.end())
+    const auto it = _keyBindings.find(name);
+    if (it == _keyBindings.end())
         return false;
 
 
@@ -116,8 +131,8 @@ bool InputManager::IsActionDown(const std::string& name)
 
 bool InputManager::IsActionPressed(const std::string& name)
 {
-    const auto it = _bindings.find(name);
-    if (it == _bindings.end())
+    const auto it = _keyBindings.find(name);
+    if (it == _keyBindings.end())
         return false;
 
     return std::ranges::any_of(it->second.begin(), it->second.end(), [](auto& b) {
@@ -127,8 +142,8 @@ bool InputManager::IsActionPressed(const std::string& name)
 
 bool InputManager::IsActionReleased(const std::string& name)
 {
-    const auto it = _bindings.find(name);
-    if (it == _bindings.end())
+    const auto it = _keyBindings.find(name);
+    if (it == _keyBindings.end())
         return false;
 
     return std::ranges::any_of(it->second.begin(), it->second.end(), [](auto& b) {
@@ -139,7 +154,7 @@ bool InputManager::IsActionReleased(const std::string& name)
 void InputManager::LogBindings()
 {
     LOG_INFO("Current action bindings:");
-    for (const auto& [action, keys] : _bindings)
+    for (const auto& [action, keys] : _keyBindings)
     {
         std::string list;
         for (const i32 key : keys)

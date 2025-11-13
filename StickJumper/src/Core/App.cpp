@@ -29,7 +29,6 @@
 #include "InputManager.h"
 
 #include <__msvc_ranges_to.hpp>
-#include <GLFW/glfw3.h>
 
 namespace stick
 {
@@ -49,10 +48,10 @@ void App::Init()
     _Settings.Load();
     _AppSettings = _Settings.Get<AppSettings>("app");
 
-    InputManager::BindAction("jump", GLFW_KEY_SPACE);
-    InputManager::BindAction("jump", GLFW_KEY_W);
-    InputManager::BindAction("move_left", GLFW_KEY_A);
-    InputManager::BindAction("move_right", GLFW_KEY_D);
+    InputManager::BindAction("jump", Keys::Up);
+    InputManager::BindAction("jump", Keys::W);
+    InputManager::BindAction("move_left", Keys::A);
+    InputManager::BindAction("move_right", Keys::D);
 }
 
 void App::CreateWindow(const std::string& title, const int width, const int height)
@@ -141,7 +140,7 @@ void App::Run()
             LOG_INFO("Space pressed");
         }
 
-        if (InputHandler::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_1))
+        if (InputHandler::IsMouseButtonPressed(MouseButtons::Left))
         {
             LOG_INFO("Mouse clicked at {}, {}", InputHandler::GetMousePosition().x, InputHandler::GetMousePosition().y);
         }

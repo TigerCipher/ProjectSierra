@@ -21,6 +21,7 @@
 #include "Error/StickException.h"
 #include "Core/Logger.h"
 #include "Core/AppSettings.h"
+#include "Core/Input.h"
 
 inline AppSettings _AppSettings;
 
